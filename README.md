@@ -1,3 +1,7 @@
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+
 <br />
 <div align="center">
     <a href="https://github.com/B-Pump">
