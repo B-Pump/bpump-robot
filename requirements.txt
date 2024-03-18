@@ -1,6 +1,10 @@
+qrcode
+pyzbar
+matplotlib
+threading
 opencv-python
 mediapipe
-matplotlib
-Pillow
 keyboard
 numpy
+json
+PIL
