@@ -8,3 +8,4 @@ keyboard
 numpy
 json
 PIL
+socket
