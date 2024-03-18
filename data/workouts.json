@@ -1,0 +1,80 @@
+{
+    "workouts": {
+        "pullup": {
+            "sugar": {
+                "title": "Tractions"
+            },
+            "left": {
+                "angle": "angleLeftArm",
+                "minAngle": 150,
+                "maxAngle": 48
+            },
+            "right": {
+                "angle": "angleRightArm",
+                "minAngle": 150,
+                "maxAngle": 48
+            }
+        },
+        "curl": {
+            "sugar": {
+                "title": "Curls biceps"
+            },
+            "left": {
+                "angle": "angleLeftArm",
+                "minAngle": 70,
+                "maxAngle": 160
+            },
+            "right": {
+                "angle": "angleRightArm",
+                "minAngle": 70,
+                "maxAngle": 160
+            }
+        },
+        "pushup": {
+            "sugar": {
+                "title": "Pompes"
+            },
+            "left": {
+                "angle": "angleLeftArm",
+                "minAngle": 75,
+                "maxAngle": 165
+            },
+            "right": {
+                "angle": "angleRightArm",
+                "minAngle": 75,
+                "maxAngle": 165
+            }
+        },
+        "situp": {
+            "sugar": {
+                "title": "Abdos"
+            },
+            "left": {
+                "angle": "angleRightHip",
+                "minAngle": 80,
+                "maxAngle": 125
+            },
+            "right": {
+                "angle": "angleRightHip",
+                "minAngle": 80,
+                "maxAngle": 125
+            }
+        },
+        "squat": {
+            "sugar": {
+                "title": "Squats",
+                "invertReward": 1
+            },
+            "left": {
+                "angle": "angleLeftHip",
+                "minAngle": 48,
+                "maxAngle": 160
+            },
+            "right": {
+                "angle": "angleLeftHip",
+                "minAngle": 48,
+                "maxAngle": 160
+            }
+        }
+    }
+}

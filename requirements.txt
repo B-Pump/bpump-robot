@@ -1,0 +1,6 @@
+opencv-python
+mediapipe
+matplotlib
+Pillow
+keyboard
+numpy
