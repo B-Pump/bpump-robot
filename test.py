@@ -24,15 +24,18 @@ if len(user_input) == 2:
     elif exo == "5":
         todo = "squat"
 
-    # cam = threading.Thread(target=camera.start_cam(exo, reps), args=(exo, reps))
-    # proj = threading.Thread(target=projector.start_proj(exo), args=(exo))
+    def start_projector(todo):
+        exercice.start_proj(todo)
 
-    # cam.start()
-    # proj.start()
+    def start_cam(todo, rep):
+        exercice.start_cam(todo, rep)
 
-    exercice.start_cam(exo, reps)
-    # exercice.start_proj(exo)
+    #videoProj = threading.Thread(target=start_projector, args=(todo,))
+    cam = threading.Thread(target=start_cam, args=(todo, reps))
 
+    cam.start()
+    start_projector(todo)
+    
     print("Les deux threads ont bien été lancés !")
 else:
     print("Vous avez mal répondu au formulaire")

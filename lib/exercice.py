@@ -1,12 +1,9 @@
 import cv2
-import time
-import os
+import time, os, sys
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
-import sys
- 
-# setting path
+
 sys.path.append('../bpump-robot')
 
 import lib.internals.expectations as data
@@ -90,48 +87,53 @@ class Exercice:
         filePath = f"./data/{workout}.png"
         folderPath = "./output"
 
-        positions = data.fetchPosition(workout)
-        markers = {workout: positions}
+        if not os.path.exists(f"{folderPath}/{workout}.png"):
+            positions = data.fetchPosition(workout)
+            markers = {workout: positions}
 
-        adjusted_markers = {
-            workout: [(self.center_x + x, self.center_y + y) for x, y in positions]
-            for workout, positions in markers.items()
-        }
+            adjusted_markers = {
+                workout: [(self.center_x + x, self.center_y + y) for x, y in positions]
+                for workout, positions in markers.items()
+            }
 
-        plt.figure(figsize=(self.width / 77, self.height / 77))
-        plt.imshow(self.image)
+            plt.figure(figsize=(self.width / 77, self.height / 77))
+            plt.imshow(self.image)
 
-        plt.scatter(self.center_x, self.center_y, color="blue", marker="x", s=self.marker_size)
+            plt.scatter(self.center_x, self.center_y, color="blue", marker="x", s=self.marker_size)
 
-        for point in adjusted_markers[workout]:
-            plt.scatter(point[0], point[1], color="red", marker="o", s=self.marker_size)
+            for point in adjusted_markers[workout]:
+                plt.scatter(point[0], point[1], color="red", marker="o", s=self.marker_size)
 
-        plt.axis("off")
+            plt.axis("off")
 
-        plt.savefig(filePath, bbox_inches="tight", pad_inches=0)
+            plt.savefig(filePath, bbox_inches="tight", pad_inches=0)
 
-        image = cv2.imread(filePath)
-        minus_plus = 300
+            image = cv2.imread(filePath)
+            minus_plus = 300
 
-        height, width = image.shape[:2]
-        original_points = np.float32([[0, 0], [width, 0], [0, height], [width, height]])
+            height, width = image.shape[:2]
+            original_points = np.float32([[0, 0], [width, 0], [0, height], [width, height]])
 
-        points_dest = np.float32([[0 + minus_plus, 0], [width - minus_plus, 0], [0, height], [width, height]])
-        transformation_matrix = cv2.getPerspectiveTransform(original_points, points_dest)
-        deformed_image = cv2.warpPerspective(image, transformation_matrix, (width, height))
+            points_dest = np.float32([[0 + minus_plus, 0], [width - minus_plus, 0], [0, height], [width, height]])
+            transformation_matrix = cv2.getPerspectiveTransform(original_points, points_dest)
+            deformed_image = cv2.warpPerspective(image, transformation_matrix, (width, height))
 
-        if not os.path.exists(folderPath):
-            os.makedirs(folderPath)
+            if not os.path.exists(folderPath):
+                os.makedirs(folderPath)
 
-        cv2.imwrite(f"{folderPath}/{workout}.png", deformed_image)
-        os.remove(filePath)
+            cv2.imwrite(f"{folderPath}/{workout}.png", deformed_image)
+            os.remove(filePath)
 
-        print(f"Image deformed successfully in : {folderPath}/{workout}.png")
+            print(f"Image deformed successfully in : {folderPath}/{workout}.png")
+        else:
+            deformed_image = cv2.imread(f"{folderPath}/{workout}.png")
 
-        cv2.namedWindow("bpump-proj", cv2.WND_PROP_FULLSCREEN)
-        cv2.setWindowProperty("bpump-proj", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        cv2.imshow("bpump-proj", deformed_image)
+        cv2.namedWindow("bpump-videoproj", cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty("bpump-videoproj", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.imshow("bpump-videoproj", deformed_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-Exercice().start_cam("pullup", 10)
+# if __name__ == "__main__":
+    # Exercice().start_proj("pullup")
+    # Exercice().start_cam("pullup", 10)
