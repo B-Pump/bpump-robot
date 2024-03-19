@@ -4,6 +4,10 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
+import sys
+ 
+# setting path
+sys.path.append('../bpump-robot')
 
 import lib.internals.expectations as data
 import lib.internals.poseModule as pm
@@ -129,3 +133,5 @@ class Exercice:
         cv2.imshow("bpump-proj", deformed_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+
+Exercice().start_cam("pullup", 10)
