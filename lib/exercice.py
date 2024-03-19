@@ -124,8 +124,8 @@ class Exercice:
 
         print(f"Image deformed successfully in : {folderPath}/{workout}.png")
 
-        cv2.namedWindow("Deformed Image", cv2.WND_PROP_FULLSCREEN)
-        cv2.setWindowProperty("Deformed Image", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        cv2.imshow("Deformed Image", deformed_image)
+        cv2.namedWindow("bpump-proj", cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty("bpump-proj", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.imshow("bpump-proj", deformed_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
