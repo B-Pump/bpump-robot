@@ -2,8 +2,7 @@ import cv2
 import mediapipe as mp
 import math
 
-class poseDetector() :
-    
+class poseModule() :
     def __init__(self, mode=False, complexity=1, smooth_landmarks=True, enable_segmentation=False, smooth_segmentation=True, detectionCon=0.5, trackCon=0.5):
         """
         Initializing the class with specific parameters for model configuration and detection
@@ -16,6 +15,7 @@ class poseDetector() :
         :param detectionCon: Confidence threshold for detection (defaults to 0.5)
         :param trackCon: Confidence threshold for tracking (defaults to 0.5)
         """
+
         self.mode = mode 
         self.complexity = complexity
         self.smooth_landmarks = smooth_landmarks
@@ -35,6 +35,7 @@ class poseDetector() :
         :param draw: Boolean indicating whether landmarks and connections should be drawn on the image (defaults to True)
         :return: The image with the landmarks and connections drawn
         """
+
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.pose.process(imgRGB)
         if self.results.pose_landmarks:
@@ -51,6 +52,7 @@ class poseDetector() :
         :param draw: Boolean indicating whether landmarks should be drawn on the image (default to True)
         :return: A list containing the positions of landmarks
         """
+
         self.lmList = []
         if self.results.pose_landmarks:
             for id, lm in enumerate(self.results.pose_landmarks.landmark):
@@ -71,6 +73,7 @@ class poseDetector() :
         :param draw: Boolean indicating whether the angle should be drawn on the image (defaults to True)
         :return: The calculated angle in degrees
         """
+
         x1, y1 = self.lmList[p1][1:]
         x2, y2 = self.lmList[p2][1:]
         x3, y3 = self.lmList[p3][1:]

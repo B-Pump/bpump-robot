@@ -5,7 +5,4 @@ opencv-python
 mediapipe
 keyboard
 numpy
-json
-PIL
-socket
-threading
+pillow

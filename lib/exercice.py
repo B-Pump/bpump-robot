@@ -1,62 +1,51 @@
-import cv2, time
-from PIL import Image
-from lib.internals.poseType import PoseType
-import lib.internals.poseModule as pm
-import lib.internals.expectations as data
+import cv2
+import time
+import os
 import matplotlib.pyplot as plt
+import numpy as np
+from PIL import Image
+
 import lib.internals.expectations as data
-import lib.internals.deformation as deform
+import lib.internals.poseModule as pm
+import lib.internals.poseHandler as ph
 
+class Exercice:
+    def __init__(self, reps=0):
+        self.reps = reps
 
-class Exercices:
-    def __init__(self):
-        self.image = Image.open("assets/fond-blanc.png")
-
+        self.image = Image.open("./assets/bg-white.png")
         self.width, self.height = self.image.size
-        print(f"Width:{self.width}\nHeight:{self.height}")
-
         self.center_x = self.width / 2
         self.center_y = self.height / 2
-
         self.marker_size = 500
-    
 
-    def start_cam(self, workout, reps):
-        """
-        Start the specified exercise
+    def start_cam(self, workout: str, reps: int):
+        cap = cv2.VideoCapture("./assets/workout.mp4")
 
-        :param workout: The name of the exercise
-        :param reps: The number of repetitions to perform
-        :return: The number of repetitions performed
-        """
-        invert = data.fetchInvert(workout)
-        title = data.fetchSugar(workout)
-        cap = cv2.VideoCapture(1)
         if not cap.isOpened():
             print("Cannot open camera")
-        detector = pm.poseDetector()
-        pTime = 0
-        self.reps = 0
-        repDrop = False
+            return
+
+        invert = data.fetchInvert(workout)
         neededAngles = data.fetchAngles(workout)
 
-        if invert:  # We reverse the rep counting system depending on whether it is for example a squat or a pull-up
-            # TODO Make more than two types of reward system and refactor them on their own file
-            # TODO they would return a lambda function which would calculate the progression
+        detector = pm.poseModule()
+        handler = ph.poseHandler()
+
+        pTime = 0
+        repDrop = False
+
+        if invert:
             def calculate_progress(angle, angleMin, angleMax):
-                """
-                ...
-                """
                 angle = max(angleMin, min(angle, angleMax))
                 progression = round(((angle - angleMax) / (angleMin - angleMax)) * 105)
+
                 return progression
         else:
             def calculate_progress(angle, angle_min, angle_max):
-                """
-                ...
-                """
                 angle = max(angle_max, min(angle, angle_min))
                 progression = round(((angle - angle_min) / (angle_max - angle_min)) * 100)
+
                 return progression
             
         while self.reps < reps:
@@ -66,83 +55,77 @@ class Exercices:
                 img = detector.findPose(img, False)
                 img = cv2.resize(img, (1024, 576))
                 lmList = detector.findPosition(img, False)
-
+                
                 if len(lmList) != 0:
-                    pose = self.poseHandler(img, detector, neededAngles)
+                    pose = handler.poseHandler(img, detector, neededAngles)
                     expectations = data.lookup(workout, pose)
                     percentage = calculate_progress(*expectations[0])
-                    if percentage >= 100 and repDrop == True:  # We also add a tolerance...
+
+                    if percentage >= 100 and repDrop == True:
                         self.reps += 1
                         repDrop = False
                     elif percentage == 0:
                         repDrop = True
 
-                    print(f"{percentage}% | Répétition : {self.reps}")
+                    print(f"{percentage}% | Répétitions : {self.reps}")
 
                 cTime = time.time()
                 fps = 1 / (cTime - pTime)
                 pTime = cTime
+
                 cv2.putText(img, str(int(fps)), (50, 50), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 255), 2)
-                cv2.putText(img, f"{title}: {self.reps}", (400, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1)
                 cv2.imshow("bpump-cam", img)
                 cv2.waitKey(1)
             else:
                 cap.release()
                 cv2.destroyAllWindows()
+
         return reps
 
+    def start_proj(self, workout: str):
+        filePath = f"./data/{workout}.png"
+        folderPath = "./output"
 
-    def start_projector(self, workout):
-        # Fetching exercise title and positions
-        title = data.fetchSugar(workout)
         positions = data.fetchPosition(workout)
-        markers = {workout: positions}  # Creating a dictionary of workout positions
+        markers = {workout: positions}
 
-        # Adjusting markers to fit the image
         adjusted_markers = {
             workout: [(self.center_x + x, self.center_y + y) for x, y in positions]
             for workout, positions in markers.items()
         }
 
-        # Setting the figure size
-        plt.figure(figsize=(self.width/77, self.height/77))  # Adjusting figure size in inches
-        print(self.width/77, self.height/77)  # Printing figure size (testing)
-
-        # Displaying the image
+        plt.figure(figsize=(self.width / 77, self.height / 77))
         plt.imshow(self.image)
 
-        # Plotting markers on the image
+        plt.scatter(self.center_x, self.center_y, color="blue", marker="x", s=self.marker_size)
+
         for point in adjusted_markers[workout]:
             plt.scatter(point[0], point[1], color="red", marker="o", s=self.marker_size)
 
-        # Plotting the center of the image
-        plt.scatter(self.center_x, self.center_y, color="blue", marker="x", s=self.marker_size)
-        plt.axis("off")  # Turning off the axis
+        plt.axis("off")
 
-        # Saving the plot
-        plt.savefig(f"data/{workout}.png", bbox_inches="tight", pad_inches=0)
-        print(deform.deformImage(workout))  # Deforming the image and printing the result
+        plt.savefig(filePath, bbox_inches="tight", pad_inches=0)
 
+        image = cv2.imread(filePath)
+        minus_plus = 300
 
+        height, width = image.shape[:2]
+        original_points = np.float32([[0, 0], [width, 0], [0, height], [width, height]])
 
-    def poseHandler(self, img, detector, joint_names):
-        """
-        Manipulates the detected pose and returns a PoseType object
+        points_dest = np.float32([[0 + minus_plus, 0], [width - minus_plus, 0], [0, height], [width, height]])
+        transformation_matrix = cv2.getPerspectiveTransform(original_points, points_dest)
+        deformed_image = cv2.warpPerspective(image, transformation_matrix, (width, height))
 
-        :param img: The input image
-        :param detector: The type of detector
-        :param joint_names: The list of joints
-        :return: The PoseType object representing the detected pose
-        """
-        joint_indices = {
-            "angleLeftArm": (12, 14, 16),
-            "angleLeftHip": (12, 24, 26),
-            "angleLeftLeg": (24, 26, 28),
-            "angleLeftFoot": (26, 28, 32),
-            "angleRightArm": (11, 13, 15),
-            "angleRightHip": (11, 23, 25),
-            "angleRightLeg": (23, 25, 27),
-            "angleRightFoot": (25, 27, 31)
-        }
-        angles = [detector.findAngle(img, *joint_indices[joint]) for joint in joint_names]
-        return PoseType(joint_names, angles)
+        if not os.path.exists(folderPath):
+            os.makedirs(folderPath)
+
+        cv2.imwrite(f"{folderPath}/{workout}.png", deformed_image)
+        os.remove(filePath)
+
+        print(f"Image deformed successfully in : {folderPath}/{workout}.png")
+
+        cv2.namedWindow("Deformed Image", cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty("Deformed Image", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.imshow("Deformed Image", deformed_image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()

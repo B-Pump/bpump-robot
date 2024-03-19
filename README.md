@@ -15,9 +15,9 @@
 
 This is the compilation of:
 
--   [Bpump Cam](https://github.com/B-Pump/bpump-cam)
--   [Bpump Wifi](https://github.com/B-Pump/bpump-wifi)
--   [Bpump Video Projector](https://github.com/B-Pump/bpump-videoproj)
+-   [bpump-cam](https://github.com/B-Pump/bpump-cam)
+-   [bpump-videoproj](https://github.com/B-Pump/bpump-videoproj)
+-   [bpump-wifi](https://github.com/B-Pump/bpump-wifi)
 
 ## Contributing
 
