@@ -1,4 +1,6 @@
-import threading
+import threading, sys
+
+sys.path.append('../bpump-robot')
 
 from lib.exercice import Exercice
 
