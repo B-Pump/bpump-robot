@@ -32,6 +32,8 @@ class Exercices:
         invert = data.fetchInvert(workout)
         title = data.fetchSugar(workout)
         cap = cv2.VideoCapture(1)
+        if not cap.isOpened():
+            print("Cannot open camera")
         detector = pm.poseDetector()
         pTime = 0
         self.reps = 0

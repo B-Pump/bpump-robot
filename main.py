@@ -23,34 +23,43 @@ SEPARATOR = "<SEPARATOR>"
 
 
 def main():
-    generate_qr_code((str(SERVER_HOST) + "," + str(SERVER_PORT)))
-    s = socket.socket()
+    online = True
+    while online==True:
+        try:
+            print(f"[*] Server is Starting")
+            s = socket.socket()
+            
+            print(f"[*] Generating QRCode!")
+            generate_qr_code((str(SERVER_HOST) + "," + str(SERVER_PORT)))
 
-    s.bind((SERVER_HOST, SERVER_PORT))
-    s.listen(5)
-    print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
+            s.bind((SERVER_HOST, SERVER_PORT))
+            s.listen(5)
+            print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
 
-    client_socket, address = s.accept()
-    print(f"[+] {address} is connected")
+            client_socket, address = s.accept()
+            print(f"[+] {address} is connected")
 
-    #receive_file(client_socket)
+            while True:
+                received = client_socket.recv(BUFFER_SIZE).decode()
+                print(received)
+                
+                title, message = received.split(";")
+                print(f"{title} : {message}")
 
-    while True:
-        received = client_socket.recv(BUFFER_SIZE).decode()
-        print(received)
+                client_socket.send("state;start".encode())
+
+                # Start exo
+                time.sleep(2)
+
+                client_socket.send("state;finished".encode())
+        except:
+            print(f"[*] Server has encounter an error!")
+            print(f"[*] Server will restart!")
         
-        title, exoselected = received.split(";")
-        print(exoselected)
-
-        client_socket.send("state;start".encode())
-
-        # Start exo
-        time.sleep(2)
-
-        client_socket.send("state;finished".encode())
-        
+        print(f"[*] Server closed")
+                
 
 
-print("[*] Server closed")
+
 
 main()

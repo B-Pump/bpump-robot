@@ -1,5 +1,8 @@
+import sys
+sys.path.append('../bpump-robot')
+
 import threading
-from lib.exercie import Exercices
+from lib.exercice import Exercices
 exercices = Exercices()
 
 user_input = str(input(f"""{"="*40}
