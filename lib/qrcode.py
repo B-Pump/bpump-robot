@@ -6,7 +6,7 @@ from PIL import Image
 class QRCode:
     def generate(data):
         folderPath = "./output"
-        fileName = "qr_code.png"
+        fileName = "qr_code.jpg"
         
         qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=15, border=2)
 

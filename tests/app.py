@@ -6,7 +6,7 @@ BUFFER_SIZE = 4096
 
 
 with socket.socket() as s:
-    host, port = QRCode.read("./data/qr_code.png").split(",", 2)
+    host, port = QRCode.read("./data/qr_code.jpg").split(",", 2)
     print(host)
     print(port)
 

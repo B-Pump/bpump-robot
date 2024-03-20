@@ -14,7 +14,7 @@ class Exercice:
     def __init__(self, reps=0):
         self.reps = reps
 
-        self.image = Image.open("./assets/bg-white.png")
+        self.image = Image.open("./assets/bg-white.jpg")
         self.width, self.height = self.image.size
         self.center_x = self.width / 2
         self.center_y = self.height / 2
@@ -52,9 +52,14 @@ class Exercice:
         while self.reps < reps:
             success, img = cap.read()
 
+            cTime = time.time()
+            fps = 1 / (cTime - pTime)
+            pTime = cTime
+
             if success:
                 img = detector.findPose(img, False)
                 img = cv2.resize(img, (1024, 576))
+
                 lmList = detector.findPosition(img, False)
                 
                 if len(lmList) != 0:
@@ -68,13 +73,8 @@ class Exercice:
                     elif percentage == 0:
                         repDrop = True
 
-                    print(f"{percentage}% | Répétitions : {self.reps}")
+                    print(f"{round(fps)} ips | {percentage}% - Répétitions : {self.reps}")
 
-                cTime = time.time()
-                fps = 1 / (cTime - pTime)
-                pTime = cTime
-
-                cv2.putText(img, str(int(fps)), (50, 50), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 255), 2)
                 cv2.imshow("bpump-cam", img)
                 cv2.waitKey(1)
             else:
@@ -84,10 +84,10 @@ class Exercice:
         return reps
 
     def start_proj(self, workout: str):
-        filePath = f"./data/{workout}.png"
+        filePath = f"./data/{workout}.jpg"
         folderPath = "./output"
 
-        if not os.path.exists(f"{folderPath}/{workout}.png"):
+        if not os.path.exists(f"{folderPath}/{workout}.jpg"):
             positions = data.fetchPosition(workout)
             markers = {workout: positions}
 
@@ -121,7 +121,7 @@ class Exercice:
             if not os.path.exists(folderPath):
                 os.makedirs(folderPath)
 
-            cv2.imwrite(f"{folderPath}/{workout}.png", deformed_image)
+            cv2.imwrite(f"{folderPath}/{workout}.jpg", deformed_image)
             os.remove(filePath)
 
             print(f"Image deformed successfully in : {folderPath}/{workout}.png")
@@ -133,7 +133,3 @@ class Exercice:
         cv2.imshow("bpump-videoproj", deformed_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-
-# if __name__ == "__main__":
-    # Exercice().start_proj("pullup")
-    # Exercice().start_cam("pullup", 10)
