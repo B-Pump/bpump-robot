@@ -6,6 +6,8 @@ from PIL import Image
 
 sys.path.append('../bpump-robot')
 
+from ascii import show_img
+
 import lib.internals.expectations as data
 import lib.internals.poseModule as pm
 import lib.internals.poseHandler as ph
@@ -128,8 +130,9 @@ class Exercice:
         else:
             deformed_image = cv2.imread(f"{folderPath}/{workout}.png")
 
-        cv2.namedWindow("bpump-videoproj", cv2.WND_PROP_FULLSCREEN)
-        cv2.setWindowProperty("bpump-videoproj", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        cv2.imshow("bpump-videoproj", deformed_image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # cv2.namedWindow("bpump-videoproj", cv2.WND_PROP_FULLSCREEN)
+        # cv2.setWindowProperty("bpump-videoproj", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        # cv2.imshow("bpump-videoproj", deformed_image)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+        # TODO: ascii
