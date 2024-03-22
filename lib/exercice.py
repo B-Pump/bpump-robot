@@ -1,16 +1,19 @@
+import os
+import sys
+import time
+
 import cv2
-import time, os, sys
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
 sys.path.append('../bpump-robot')
 
-from ascii import show_img
-
 import lib.internals.expectations as data
-import lib.internals.poseModule as pm
 import lib.internals.poseHandler as ph
+import lib.internals.poseModule as pm
+import lib.ascii as ascii
+
 
 class Exercice:
     def __init__(self, reps=0):
@@ -23,7 +26,7 @@ class Exercice:
         self.marker_size = 500
 
     def start_cam(self, workout: str, reps: int):
-        cap = cv2.VideoCapture("./assets/workout.mp4")
+        cap = cv2.VideoCapture(0)
 
         if not cap.isOpened():
             print("Cannot open camera")
@@ -126,13 +129,8 @@ class Exercice:
             cv2.imwrite(f"{folderPath}/{workout}.jpg", deformed_image)
             os.remove(filePath)
 
-            print(f"Image deformed successfully in : {folderPath}/{workout}.png")
+            print(f"Image deformed successfully in : {folderPath}/{workout}.jpg")
         else:
-            deformed_image = cv2.imread(f"{folderPath}/{workout}.png")
-
-        # cv2.namedWindow("bpump-videoproj", cv2.WND_PROP_FULLSCREEN)
-        # cv2.setWindowProperty("bpump-videoproj", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        # cv2.imshow("bpump-videoproj", deformed_image)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
-        # TODO: ascii
+            deformed_image = cv2.imread(f"{folderPath}/{workout}.jpg")
+        
+        ascii.start_ascii(f"./{folderPath}/{workout}.jpg", "RGB")

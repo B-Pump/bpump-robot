@@ -1,6 +1,4 @@
 import socket
-import os
-import qrcode
 import time
 
 from lib.qrcode import QRCode

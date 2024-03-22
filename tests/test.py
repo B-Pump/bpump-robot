@@ -35,6 +35,6 @@ if len(user_input) == 2:
     #videoProj = threading.Thread(target=start_projector, args=(todo,))
     #cam = threading.Thread(target=start_cam, args=(todo, reps))
 
-    start_cam(todo, reps)
+    start_projector(todo)
 else:
     print("Vous avez mal répondu au formulaire")

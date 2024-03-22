@@ -305,47 +305,45 @@ def rgb2short(rgb):
                 res.append(closest)
                 break
             i += 1
-    res = ''.join([ ('%02.x' % i) for i in res ])
-    equiv = RGB2SHORT_DICT[ res ]
+    res = "".join([('%02.x' % i) for i in res])
+    equiv = RGB2SHORT_DICT[res]
     return equiv, res
 
 RGB2SHORT_DICT, SHORT2RGB_DICT = _create_dicts()
 
-orig_chars = ' .,:;irsXA253hMHGS#9B&@'
-chars = np.asarray(list(reversed(orig_chars)))
+chars = np.asarray(list(reversed(" .,:;irsXA253hMHGS#9B&@")))
 
-input_image_path = "./assets/bg-logo.jpg"
-scale_factor = 2.0
-ascii_correction_factor = 1.0
-pixel_correction_factor = 1.9
-color_saturation_factor = 1.3
-output_mode = "RGB"  # or "256"
+def start_ascii(input_image: str, output_mode: str):
+    scale_factor = 1.0
+    ascii_correction_factor = 1.0
+    pixel_correction_factor = 1.9
+    color_saturation_factor = 1.3
 
-img = Image.open(input_image_path)
+    img = Image.open(input_image)
 
-termsize = shutil.get_terminal_size()
+    termsize = shutil.get_terminal_size()
 
-auto_factor = termsize[1] / img.size[1]
+    auto_factor = termsize[1] / img.size[1]
 
-S = ( round(img.size[0]*scale_factor*pixel_correction_factor*auto_factor), round(img.size[1]*scale_factor*auto_factor) )
+    S = (round(img.size[0]*scale_factor*pixel_correction_factor*auto_factor), round(img.size[1]*scale_factor*auto_factor))
 
-img = np.sum( np.asarray( img.resize(S) ), axis=2)  
-img -= img.min()
-img = (1.0 - img/img.max())**ascii_correction_factor*(chars.size - 1)
+    img = np.sum(np.asarray(img.resize(S)), axis=2)  
+    img -= img.min()
+    img = (1.0 - img/img.max())**ascii_correction_factor*(chars.size - 1)
 
-rgb_im = Image.open(input_image_path).convert('RGB').resize(S)
-improved = ImageEnhance.Color(rgb_im).enhance(color_saturation_factor)
-rgb_arr = np.array(improved)
+    rgb_im = Image.open(input_image).convert("RGB").resize(S)
+    improved = ImageEnhance.Color(rgb_im).enhance(color_saturation_factor)
+    rgb_arr = np.array(improved)
 
-for line,l in zip(rgb_arr, img.astype(int)):
-    s = list(chars[l])
-    for pixel, p in zip(line, s):
-        r, g, b = pixel
-        if output_mode == "RGB":
-            pix = "\x1b[38;2;{};{};{}m{}\x1b[0m".format(r,g,b,p)
-        else:
-            colorHEX = "{0:02x}{1:02x}{2:02x}".format(r, g, b)
-            c, rgb = rgb2short(colorHEX)
-            pix = "\x1b[38;5;{}m{}\x1b[0m".format(c,p)
-        print(pix, end="")
-    print()
+    for line,l in zip(rgb_arr, img.astype(int)):
+        s = list(chars[l])
+        for pixel, p in zip(line, s):
+            r, g, b = pixel
+            if output_mode == "RGB":
+                pix = "\x1b[38;2;{};{};{}m{}\x1b[0m".format(r, g, b, p)
+            else:
+                colorHEX = "{0:02x}{1:02x}{2:02x}".format(r, g, b)
+                c, rgb = rgb2short(colorHEX)
+                pix = "\x1b[38;5;{}m{}\x1b[0m".format(c, p)
+            print(pix, end="")
+        print()
