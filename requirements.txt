@@ -1,8 +1,6 @@
 qrcode
-pyzbar
 matplotlib
 opencv-python
 mediapipe
-keyboard
 numpy
 pillow

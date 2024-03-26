@@ -23,7 +23,7 @@ class Exercice:
         self.width, self.height = self.image.size
         self.center_x = self.width / 2
         self.center_y = self.height / 2
-        self.marker_size = 500
+        self.marker_size = 3500
 
     def start_cam(self, workout: str, reps: int):
         cap = cv2.VideoCapture(0)
@@ -104,7 +104,7 @@ class Exercice:
             plt.figure(figsize=(self.width / 77, self.height / 77))
             plt.imshow(self.image)
 
-            plt.scatter(self.center_x, self.center_y, color="blue", marker="x", s=self.marker_size)
+            plt.scatter(self.center_x, self.center_y, color="blue", marker="D", s=self.marker_size)
 
             for point in adjusted_markers[workout]:
                 plt.scatter(point[0], point[1], color="red", marker="o", s=self.marker_size)

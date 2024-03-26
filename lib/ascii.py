@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 from PIL import ImageEnhance
 
-CLUT = [  # color look-up table
+CLUT = [ # color look-up table
     # 8-bit, RGB hex
 
     # Primary 3-bit (8 colors). Unique representation !
@@ -314,7 +314,7 @@ RGB2SHORT_DICT, SHORT2RGB_DICT = _create_dicts()
 chars = np.asarray(list(reversed(" .,:;irsXA253hMHGS#9B&@")))
 
 def start_ascii(input_image: str, output_mode: str):
-    scale_factor = 1.0
+    scale_factor = 1.5
     ascii_correction_factor = 1.0
     pixel_correction_factor = 1.9
     color_saturation_factor = 1.3
