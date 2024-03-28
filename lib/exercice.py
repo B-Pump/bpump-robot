@@ -12,8 +12,7 @@ sys.path.append('../bpump-robot')
 import lib.internals.expectations as data
 import lib.internals.poseHandler as ph
 import lib.internals.poseModule as pm
-import lib.ascii as ascii
-
+import lib.ansi as ansi
 
 class Exercice:
     def __init__(self, reps=0):
@@ -104,7 +103,7 @@ class Exercice:
             plt.figure(figsize=(self.width / 77, self.height / 77))
             plt.imshow(self.image)
 
-            plt.scatter(self.center_x, self.center_y, color="blue", marker="D", s=self.marker_size)
+            plt.scatter(self.center_x, self.center_y, color="blue", marker="o", s=self.marker_size)
 
             for point in adjusted_markers[workout]:
                 plt.scatter(point[0], point[1], color="red", marker="o", s=self.marker_size)
@@ -133,4 +132,4 @@ class Exercice:
         else:
             deformed_image = cv2.imread(f"{folderPath}/{workout}.jpg")
         
-        ascii.start_ascii(f"./{folderPath}/{workout}.jpg", "RGB")
+        ansi.image_to_ansi(f"./{folderPath}/{workout}.jpg")
