@@ -108,8 +108,6 @@ def image_to_ansi(image_path="./assets/bg-logo.jpg", max_console_width=50):
 
         s.append("\n")
         sys.stdout.write("".join(s))
-    else:
-        print("Error : Invalid image path")
 
 if __name__ == "__main__":
     image_to_ansi()

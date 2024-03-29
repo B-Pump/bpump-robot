@@ -1,6 +1,10 @@
-import os
+import os,sys
 
 import qrcode, cv2
+
+sys.path.append('../bpump-robot')
+
+import lib.ansi as ansi
 
 class QRCode:
     def __init__(self):
@@ -25,8 +29,7 @@ class QRCode:
             os.makedirs(folderPath)
 
         img.save(f"{folderPath}/{filename}.jpg")
-
-        print(f"QR code saved")
+        ansi.image_to_ansi(f"{folderPath}/{filename}.jpg")
 
     def read(self, image_path):
         img = cv2.imread(image_path)
@@ -34,7 +37,4 @@ class QRCode:
         data, bbox, _ = detector.detectAndDecode(img)
 
         if bbox is not None:
-            print(f"QR code : {data}")
             return data
-        else:
-            print("No QR code detected")

@@ -28,7 +28,6 @@ class Exercice:
         cap = cv2.VideoCapture(0)
 
         if not cap.isOpened():
-            print("Cannot open camera")
             return
 
         invert = data.fetchInvert(workout)
@@ -127,8 +126,6 @@ class Exercice:
 
             cv2.imwrite(f"{folderPath}/{workout}.jpg", deformed_image)
             os.remove(filePath)
-
-            print(f"Image deformed successfully in : {folderPath}/{workout}.jpg")
         else:
             deformed_image = cv2.imread(f"{folderPath}/{workout}.jpg")
         

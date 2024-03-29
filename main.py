@@ -15,10 +15,10 @@ def main():
 
     while True:
         try:
-            print(f"[*] Server is Starting")
+            print(f"[*] Server is starting")
             s = socket.socket()
-            
-            print(f"[*] Generating QRCode!")
+
+            print(f"[*] Generating QR code!")
             qr.generate((str(SERVER_HOST) + ":" + str(SERVER_PORT)))
 
             s.bind((SERVER_HOST, SERVER_PORT))
@@ -31,11 +31,11 @@ def main():
             while True:
                 received = client_socket.recv(BUFFER_SIZE).decode()
                 print(f"Received data : {received}")
-                
+
                 title, message = received.split(";")
-                
+
                 todo = ""
-                
+
                 exo, reps = message.split(" ")
                 reps = int(reps)
 
