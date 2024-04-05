@@ -1,78 +1,72 @@
-import socket
+import eventlet
+import socketio
 import time
+import socket
 
 from lib.codeqr import QRCode
-from lib.exercice import Exercice
+qr = QRCode()
 
-def main():
+from lib.exercice import Exercice
+exercice = Exercice()
+
+sio = socketio.Server()
+app = socketio.WSGIApp(sio)
+
+
+@ sio.event
+def connect(sid, environ):
+    print(f"[*] {sid} connected")
+
+@ sio.event
+def disconnect(sid):
+    print(f"[*] {sid} disconnected")
+
+@ sio.event
+def message(sid, data):
+    print(f"Received data : {data}")    # {'data': 'start;1 2'}
+    title, message = data["data"].split(";")
+
+    todo = ""
+
+    exo, reps = message.split(" ")
+    reps = int(reps)
+
+    if exo and reps:
+        if exo == "1":
+            todo = "pullup"
+        elif exo == "2":
+            todo = "curl"
+        elif exo == "3":
+            todo = "pushup"
+        elif exo == "4":
+            todo = "situp"
+        elif exo == "5":
+            todo = "squat"
+
+        def start_projector(todo):
+            exercice.start_proj(todo)
+            sio.emit("message", {"data": "start;exo:"+todo}, room=sid)
+
+        def start_cam(todo, rep):
+            exercice.start_cam(todo, reps)
+            sio.emit("message", {"data": "start;exo:"+todo+",rep:"+str(reps)}, room=sid)
+
+        start_projector(todo)
+    else:
+        sio.emit("message", {"data": "error;Vous avez mal répondu au formulaire"}, room=sid)
+
+    # TODO: start exo
+
+    time.sleep(1)
+
+    sio.emit("message", {"data": "finished;exo:" + todo + ",rep:" + str(reps)}, room=sid)
+
+if __name__ == "__main__":
     SERVER_HOST_NAME = socket.gethostname()
     SERVER_HOST = socket.gethostbyname(SERVER_HOST_NAME)
     SERVER_PORT = 5001
-    BUFFER_SIZE = 4096
 
-    qr = QRCode()
-    exercice = Exercice()
+    print(f"[*] Server is starting")
+    qr.generate(f"{SERVER_HOST}:{SERVER_PORT}")
 
-    while True:
-        try:
-            print(f"[*] Server is starting")
-            s = socket.socket()
-
-            print(f"[*] Generating QR code!")
-            qr.generate((str(SERVER_HOST) + ":" + str(SERVER_PORT)))
-
-            s.bind((SERVER_HOST, SERVER_PORT))
-            s.listen(5)
-            print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
-
-            client_socket, address = s.accept()
-            print(f"[+] {address} is connected")
-
-            while True:
-                received = client_socket.recv(BUFFER_SIZE).decode()
-                print(f"Received data : {received}")
-
-                title, message = received.split(";")
-
-                todo = ""
-
-                exo, reps = message.split(" ")
-                reps = int(reps)
-
-                if exo and reps:
-                    if exo == "1":
-                        todo = "pullup"
-                    elif exo == "2":
-                        todo = "curl"
-                    elif exo == "3":
-                        todo = "pushup"
-                    elif exo == "4":
-                        todo = "situp"
-                    elif exo == "5":
-                        todo = "squat"
-
-                    def start_projector(todo):
-                        exercice.start_proj(todo)
-                        client_socket.send(("start;exo:"+todo).encode())
-
-                    def start_cam(todo, rep):
-                        exercice.start_cam(todo, reps)
-                        client_socket.send(("start;exo:"+todo+",rep:"+str(reps)).encode())
-
-                    start_projector(todo)
-                else:
-                    client_socket.send("error;Vous avez mal répondu au formulaire".encode())
-
-                # TODO: start exo
-
-                time.sleep(1)
-
-                client_socket.send(("finished;exo:" + todo + ",rep:" + str(reps)).encode())
-        except:
-            print(f"[*] Server has encounter an error !")
-            print(f"[*] Server will restart !")
-        
-        print(f"[*] Server closed")
-
-if __name__ == "__main__":
-    main()
+    eventlet.wsgi.server(eventlet.listen((SERVER_HOST, SERVER_PORT)), app)
