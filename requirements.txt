@@ -5,3 +5,4 @@ mediapipe
 numpy
 pillow
 python-socketio
+eventlet

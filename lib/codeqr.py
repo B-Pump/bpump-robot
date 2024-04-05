@@ -1,4 +1,4 @@
-import os,sys
+import os, sys
 
 import qrcode, cv2
 

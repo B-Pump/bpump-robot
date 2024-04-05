@@ -13,17 +13,17 @@ sio = socketio.Server()
 app = socketio.WSGIApp(sio)
 
 
-@ sio.event
+@sio.event
 def connect(sid, environ):
     print(f"[*] {sid} connected")
 
-@ sio.event
+@sio.event
 def disconnect(sid):
     print(f"[*] {sid} disconnected")
 
-@ sio.event
+@sio.event
 def message(sid, data):
-    print(f"Received data : {data}")    # {'data': 'start;1 2'}
+    print(f"Received data : {data}") # {'data': 'start;1 2'}
     title, message = data["data"].split(";")
 
     todo = ""
