@@ -18,27 +18,27 @@ def connect():
 def disconnect():
     print("[-] Disconnected")
 
-if __name__ == "__main__":
-    host, port = qr.read("./output/qr_code.jpg").split(":", 2)
+# if __name__ == "__main__":
+#     host, port = qr.read("./output/qr_code.jpg").split(":", 2)
 
-    print(f"[+] Connecting to {host}:{port}")
-    sio.connect(f"http://{host}:{port}")
+#     print(f"[+] Connecting to {host}:{port}")
+#     sio.connect(f"http://{host}:{port}")
 
-    while True:
-        exoselected = str(input(f"Which exercise do you want to do ?\n\n1 - Curl\n2 - Squats\n3 - Pushups\n\n            exo rep\n Response : "))
+#     while True:
+#         exoselected = str(input(f"Which exercise do you want to do ?\n\n1 - Curl\n2 - Squats\n3 - Pushups\n\n            exo rep\n Response : "))
         
-        sio.emit("message", {"data": f"start;{exoselected}"})
+#         sio.emit("message", {"data": f"start;{exoselected}"})
 
-        @sio.on("message")
-        def handle_message(data):
-            print(f"Received data : {data}") 
-            title, response = data["data"].split(";")
+#         @sio.on("message")
+#         def handle_message(data):
+#             print(f"Received data : {data}") 
+#             title, response = data["data"].split(";")
             
-            if title == "start":
-                print(response)
-            elif title == "finished":
-                print(response)
-            else:
-                print(response)
+#             if title == "start":
+#                 print(response)
+#             elif title == "finished":
+#                 print(response)
+#             else:
+#                 print(response)
 
 #sio.disconnect()
