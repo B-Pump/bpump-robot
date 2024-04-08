@@ -28,6 +28,21 @@ def message(sid, data):
 def start_exo(sid, data):
     print(data["data"]["title"])
 
+def send_stats():
+    data = {
+        "message": "Hello ! I'm the server !",
+        "data": [
+            { "value": 10, "time": 0 },
+            { "value": 20, "time": 1 },
+            { "value": 30, "time": 2 },
+            { "value": 25, "time": 3 },
+            { "value": 35, "time": 4 },
+            { "value": 40, "time": 5 },
+            { "value": 60, "time": 6 },
+        ],
+    };
+    sio.emit("result", data)
+
 if __name__ == "__main__":
     SERVER_HOST_NAME = socket.gethostname()
     SERVER_HOST = socket.gethostbyname(SERVER_HOST_NAME)

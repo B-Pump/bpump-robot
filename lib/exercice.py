@@ -14,8 +14,11 @@ detector = pm.poseModule()
 
 class Exercice:
     def __init__(self):
-        self.reps = 0
+        self.reps = -1
         self.repDrop = False
+
+        self.up_advice = False
+        self.down_advice = False
 
         self.image = Image.open("./assets/bg-white.jpg")
         self.width, self.height = self.image.size
@@ -54,23 +57,44 @@ class Exercice:
                         "rightFoot": (25, 27, 31)
                     }
 
-                    for angle in exercise_data["camera"]:
-                        if angle:
-                            angle_name = angle["angle"]
-                            min_angle = angle["min"]
-                            max_angle = angle["max"]
+                    for angle_data in exercise_data["camera"]:
+                        angle_name = angle_data["angle"]
+                        min_angle = angle_data["min"]
+                        max_angle = angle_data["max"]
 
-                            if angle_name and angle_name in joint_indices:
-                                new_angle = detector.findAngle(video, *joint_indices[angle_name], True)
+                        if angle_name and angle_name in joint_indices:
+                            new_angles = detector.findAngle(video, *joint_indices[angle_name], True)
 
-                                if new_angle >= min_angle:
-                                    self.repDrop = False
-                                elif new_angle <= max_angle:
-                                    if not self.repDrop:
-                                        self.reps += 1
-                                        self.repDrop = True
+                            normalized_angle = (new_angles - min_angle) / (max_angle - min_angle)
+                            movement_percentage = int(normalized_angle * 100)
 
-                                print("Reps :", self.reps)
+                            if movement_percentage >= 105 and not self.up_advice:
+                                print("Tu es allé trop haut !")
+                                self.up_advice = True
+                            elif movement_percentage <= -5 and not self.down_advice:
+                                print("Tu es allé trop bas !")
+                                self.down_advice = True
+
+                            # print(f"Pourcentage du mouvement ({angle_name}): {movement_percentage}%")
+
+                            # if new_angles >= min_angle:
+                            #     self.repDrop = False
+                            # elif new_angles <= max_angle:
+                            #     if not self.repDrop:
+                            #         self.reps += 1
+                            #         print("Reps :", self.reps)
+                            #         self.repDrop = True
+
+                    if movement_percentage >= 95:
+                        self.repDrop = False
+                    elif movement_percentage <= 5 and not self.repDrop:
+                        self.reps += 1
+                        print("Reps :", self.reps)
+
+                        self.repDrop = True
+                        self.up_advice = False
+                        self.down_advice = False
+
 
                 cv2.imshow("bpump-cam", video)
                 cv2.waitKey(1)
@@ -136,12 +160,12 @@ if __name__ == "__main__":
             {
                 "angle": "leftArm",
                 "min": 160,
-                "max": 43
+                "max": 30
             },
             {
                 "angle": "rightArm",
                 "min": 160,
-                "max": 43
+                "max": 30
             }
         ],
         'title': 'Tractions', 
