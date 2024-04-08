@@ -13,24 +13,23 @@ import lib.ansi as ansi
 detector = pm.poseModule()
 
 class Exercice:
-    def __init__(self, reps=0, image="./assets/bg-white.jpg", marker_size=3500):
-        self.reps = reps
+    def __init__(self):
+        self.reps = 0
+        self.repDrop = False
 
-        self.image = Image.open(image)
+        self.image = Image.open("./assets/bg-white.jpg")
         self.width, self.height = self.image.size
         self.center_x = self.width / 2
         self.center_y = self.height / 2
-        self.marker_size = marker_size
+        self.marker_size = 3500
 
     def start_cam(self, exercise_data, reps: int):
         cap = cv2.VideoCapture("./assets/workout.mp4")
         if not cap.isOpened():
             return
 
-        exo_camera = exercise_data["camera"]
-
         print("Préparez-vous : L'exercice va bientôt démarrer")
-        for i in range(2, 0, -1):
+        for i in range(3, 0, -1):
             print(f"Plus que {i} secondes...")
             time.sleep(1)
 
@@ -55,23 +54,23 @@ class Exercice:
                         "rightFoot": (25, 27, 31)
                     }
 
-                    for side in exo_camera:
-                        angle_data = exo_camera.get(side, {})
-                        if angle_data:
-                            angle_name = angle_data["angle"]
-                            min_angle = angle_data["minAngle"]
-                            max_angle = angle_data["maxAngle"]
+                    for angle in exercise_data["camera"]:
+                        if angle:
+                            angle_name = angle["angle"]
+                            min_angle = angle["min"]
+                            max_angle = angle["max"]
 
                             if angle_name and angle_name in joint_indices:
-                                joint_index = joint_indices[angle_name]
+                                new_angle = detector.findAngle(video, *joint_indices[angle_name], True)
 
-                                angle = detector.findAngle(video, *joint_index)
+                                if new_angle >= min_angle:
+                                    self.repDrop = False
+                                elif new_angle <= max_angle:
+                                    if not self.repDrop:
+                                        self.reps += 1
+                                        self.repDrop = True
 
-                                # print(f"Angle of {angle_name} : {angle}")
-                                # print(f"Minimal allowed angle : {min_angle}")
-                                # print(f"Maximal allowed angle : {max_angle}")
-
-                                #TODO: rep counter + percentage of rep for each angle
+                                print("Reps :", self.reps)
 
                 cv2.imshow("bpump-cam", video)
                 cv2.waitKey(1)
@@ -133,10 +132,18 @@ if __name__ == "__main__":
         'difficulty': 4, 
         'muscles': ['Dos', 'épaules', 'Bras'], 
         'needed': ['Barre fixe'], 
-        'camera': {
-            'left': {'angle': 'leftArm', 'minAngle': 150, 'maxAngle': 48}, 
-            'right': {'angle': 'rightArm', 'minAngle': 150, 'maxAngle': 48}
-        }, 
+        'camera': [
+            {
+                "angle": "leftArm",
+                "min": 160,
+                "max": 43
+            },
+            {
+                "angle": "rightArm",
+                "min": 160,
+                "max": 43
+            }
+        ],
         'title': 'Tractions', 
         'exo_id': 4, 
         'category': 'Haut du corps', 
@@ -146,4 +153,4 @@ if __name__ == "__main__":
         'projector': [{'x': 100, 'y': 0}, {'x': -100, 'y': 0}]
     }
 
-    Exercice().start_cam(exercise_data, 10)
+    Exercice().start_cam(exercise_data, 12)
