@@ -8,6 +8,7 @@ from ascii_magic import AsciiArt
 
 sys.path.append('../bpump-robot')
 
+# from main import send_stats
 import lib.internals.poseModule as pm
 
 detector = pm.poseModule()
@@ -32,7 +33,7 @@ class Exercice:
             return
 
         print("Préparez-vous : L'exercice va bientôt démarrer")
-        for i in range(5, 0, -1):
+        for i in range(2, 0, -1):
             print(f"Plus que {i} secondes...")
             time.sleep(1)
 
@@ -89,10 +90,26 @@ class Exercice:
 
                 cv2.imshow("bpump-cam", video)
                 cv2.waitKey(1)
-            else:
-                cap.release()
+            
+            if self.reps == reps:
+                data = {
+                    "message": "Hello ! I'm the server !",
+                    "data": [
+                        { "value": 0, "label": "0s" },
+                        { "value": 20, "label": "1s" },
+                        { "value": 30, "label": "2s" },
+                        { "value": 25, "label": "3s" },
+                        { "value": 35, "label": "4s" },
+                        { "value": 40, "label": "5s" },
+                        { "value": 60, "label": "6s" },
+                    ],
+                }
+                # send_stats(data)
+
+                print("Exo finished !!!")
+
                 cv2.destroyAllWindows()
-                sys.exit(1)
+                cap.release()
 
     def start_proj(self, exercise_data: str):
         workout = exercise_data["id"]
@@ -128,7 +145,7 @@ class Exercice:
         transformation_matrix = cv2.getPerspectiveTransform(original_points, points_dest)
         deformed_image = cv2.warpPerspective(np.array(image), transformation_matrix, (width, height))
 
-        AsciiArt.from_pillow_image(Image.fromarray(deformed_image)).to_terminal(columns=190, width_ratio=2)
+        AsciiArt.from_pillow_image(Image.fromarray(deformed_image)).to_terminal(columns=90, width_ratio=2)
 
         image_buffer.close()
 

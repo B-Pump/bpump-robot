@@ -1,10 +1,10 @@
-import socket
+import socket, threading
 
 import eventlet, socketio
 from pyngrok import ngrok
 
 from lib.codeqr import QRCode
-from lib.exercice import Exercice
+from lib.exercice import Exercice 
 
 qr = QRCode()
 exercice = Exercice()
@@ -24,28 +24,20 @@ def disconnect(sid):
 def message(sid, data):
     print(f"[*] Received data : {data}")
 
+def start_exo_thread(data):
+    exercice_data = data["data"]
+    exercice.start_proj(exercice_data)
+    exercice.start_cam(exercice_data, 4)
+
 @sio.event
 def start_exo(sid, data):
-    print(data["data"]["title"])
+    threading.Thread(target=start_exo_thread, args=(data,)).start()
 
-def send_stats():
-    data = {
-        "message": "Hello ! I'm the server !",
-        "data": [
-            { "value": 10, "time": 0 },
-            { "value": 20, "time": 1 },
-            { "value": 30, "time": 2 },
-            { "value": 25, "time": 3 },
-            { "value": 35, "time": 4 },
-            { "value": 40, "time": 5 },
-            { "value": 60, "time": 6 },
-        ],
-    };
+def send_stats(data):
     sio.emit("result", data)
 
 if __name__ == "__main__":
-    SERVER_HOST_NAME = socket.gethostname()
-    SERVER_HOST = socket.gethostbyname(SERVER_HOST_NAME)
+    SERVER_HOST = socket.gethostbyname(socket.gethostname())
     SERVER_PORT = 5001
 
     ngrok_tunnel = ngrok.connect(addr=f"{SERVER_HOST}:{SERVER_PORT}", bind_tls=True)
