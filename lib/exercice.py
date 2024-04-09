@@ -87,7 +87,6 @@ class Exercice:
                         self.up_advice = False
                         self.down_advice = False
 
-
                 cv2.imshow("bpump-cam", video)
                 cv2.waitKey(1)
             else:
