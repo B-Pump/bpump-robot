@@ -27,28 +27,26 @@ class poseModule() :
         self.mpPose = mp.solutions.pose
         self.pose = self.mpPose.Pose(self.mode, self.complexity, self.smooth_landmarks, self.enable_segmentation, self.smooth_segmentation, self.detectionCon, self.trackCon)
         
-    def findPose(self, img, draw=True):
+    def findPose(self, video, draw=True):
         """
         Uses the pose model to detect pose in an image
 
-        :param img: The image in which to detect the pose
+        :param video: The video in which to detect the pose
         :param draw: Boolean indicating whether landmarks and connections should be drawn on the image (defaults to True)
         :return: The image with the landmarks and connections drawn
         """
 
-        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        self.results = self.pose.process(imgRGB)
-        if self.results.pose_landmarks:
-            if draw:
-                self.mpDraw.draw_landmarks(img, self.results.pose_landmarks, self.mpPose.POSE_CONNECTIONS)
+        self.results = self.pose.process(cv2.cvtColor(video, cv2.COLOR_BGR2RGB))
+        if self.results.pose_landmarks and draw:
+            self.mpDraw.draw_landmarks(video, self.results.pose_landmarks, self.mpPose.POSE_CONNECTIONS)
                 
-        return img
+        return video
     
-    def findPosition(self, img, draw=True):
+    def findPosition(self, video, draw=True):
         """
         Extracts and returns the list of positions of the detected landmarks
 
-        :param img: The image from which to extract the positions of the landmarks
+        :param video: The video from which to extract the positions of the landmarks
         :param draw: Boolean indicating whether landmarks should be drawn on the image (default to True)
         :return: A list containing the positions of landmarks
         """
@@ -56,19 +54,19 @@ class poseModule() :
         self.lmList = []
         if self.results.pose_landmarks:
             for id, lm in enumerate(self.results.pose_landmarks.landmark):
-                h, w, c = img.shape
+                h, w, c = video.shape
                 cx, cy = int(lm.x * w), int(lm.y * h)
                 self.lmList.append([id, cx, cy])
                 if draw:
-                    cv2.circle(img, (cx, cy), 5, (0, 0, 255), cv2.FILLED)
+                    cv2.circle(video, (cx, cy), 5, (0, 0, 255), cv2.FILLED)
 
         return self.lmList
         
-    def findAngle(self, img, p1, p2, p3, draw=True):
+    def findAngle(self, video, p1, p2, p3, draw=True):
         """
         Calculates the angle formed by three specified points
 
-        :param img: The image on which to draw the angle
+        :param video: The image on which to draw the angle
         :param p1, p2, p3: Landmark indices to calculate the angle (https://lc.cx/PLZ6m7)
         :param draw: Boolean indicating whether the angle should be drawn on the image (defaults to True)
         :return: The calculated angle in degrees
@@ -87,9 +85,9 @@ class poseModule() :
             angle = 360 - angle
 
         if draw:
-            cv2.circle(img, (x1, y1), 5, (0, 0, 255), cv2.FILLED)
-            cv2.circle(img, (x2, y2), 5, (0, 0, 255), cv2.FILLED)
-            cv2.circle(img, (x3, y3), 5, (0, 0, 255), cv2.FILLED)
-            cv2.putText(img, str(int(angle)), (x2 + 10, y2 + 5), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 2)
+            cv2.circle(video, (x1, y1), 5, (0, 0, 255), cv2.FILLED)
+            cv2.circle(video, (x2, y2), 5, (0, 0, 255), cv2.FILLED)
+            cv2.circle(video, (x3, y3), 5, (0, 0, 255), cv2.FILLED)
+            cv2.putText(video, str(int(angle)), (x2 + 10, y2 + 5), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 2)
 
         return angle
