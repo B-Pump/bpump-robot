@@ -24,14 +24,11 @@ def disconnect(sid):
 def message(sid, data):
     print(f"[*] Received data : {data}")
 
-def start_exo_thread(data):
+@sio.event
+def start_exo(sid, data):
     exercice_data = data["data"]
     exercice.start_proj(exercice_data)
     exercice.start_cam(exercice_data, 4)
-
-@sio.event
-def start_exo(sid, data):
-    threading.Thread(target=start_exo_thread, args=(data,)).start()
 
 def send_stats(data):
     sio.emit("result", data)

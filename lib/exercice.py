@@ -8,7 +8,6 @@ from ascii_magic import AsciiArt
 
 sys.path.append('../bpump-robot')
 
-# from main import send_stats
 import lib.internals.poseModule as pm
 
 detector = pm.poseModule()
@@ -42,7 +41,7 @@ class Exercice:
 
             if success:
                 video = detector.findPose(video, False)
-                video = cv2.resize(video, (1024, 576))
+                # video = cv2.resize(video, (1024, 576))
 
                 lmList = detector.findPosition(video, False)
 
@@ -88,28 +87,12 @@ class Exercice:
                         self.up_advice = False
                         self.down_advice = False
 
-                cv2.imshow("bpump-cam", video)
-                cv2.waitKey(1)
-            
-            if self.reps == reps:
-                data = {
-                    "message": "Hello ! I'm the server !",
-                    "data": [
-                        { "value": 0, "label": "0s" },
-                        { "value": 20, "label": "1s" },
-                        { "value": 30, "label": "2s" },
-                        { "value": 25, "label": "3s" },
-                        { "value": 35, "label": "4s" },
-                        { "value": 40, "label": "5s" },
-                        { "value": 60, "label": "6s" },
-                    ],
-                }
-                # send_stats(data)
-
-                print("Exo finished !!!")
-
-                cv2.destroyAllWindows()
+                # cv2.imshow("bpump-cam", video)
+                # cv2.waitKey(1)
+            else:
                 cap.release()
+                # cv2.destroyAllWindows()
+                # sys.exit(1)
 
     def start_proj(self, exercise_data: str):
         workout = exercise_data["id"]
@@ -145,7 +128,7 @@ class Exercice:
         transformation_matrix = cv2.getPerspectiveTransform(original_points, points_dest)
         deformed_image = cv2.warpPerspective(np.array(image), transformation_matrix, (width, height))
 
-        AsciiArt.from_pillow_image(Image.fromarray(deformed_image)).to_terminal(columns=90, width_ratio=2)
+        AsciiArt.from_pillow_image(Image.fromarray(deformed_image)).to_terminal(columns=190, width_ratio=2)
 
         image_buffer.close()
 
@@ -196,4 +179,4 @@ if __name__ == "__main__":
     }
 
     Exercice().start_proj(exercise_data)
-    Exercice().start_cam(exercise_data, 12)
+    Exercice().start_cam(exercise_data, 4)
