@@ -17,6 +17,14 @@ class Exercice:
         self.reps = reps
         self.drop = drop
 
+        self.gravity_data = []
+        self.gravity_speed = []
+        self.gravity_acc = []
+        self.gravity_force = []
+        self.gravity_result = [
+            {"value": (0, 0), "label": "0s"}
+        ]
+
         self.up_advice = False
         self.down_advice = False
 
@@ -44,7 +52,9 @@ class Exercice:
                 video = cv2.resize(video, (1024, 576))
 
                 lmList = detector.findPosition(video, False)
+
                 center_gravite = detector.findGravityPoint(video, True)
+                self.gravity_data.append(((center_gravite, time.time())))
 
                 if len(lmList) != 0:
                     joint_indices = {
@@ -94,6 +104,53 @@ class Exercice:
                 cap.release()
                 cv2.destroyAllWindows()
                 sys.exit(1)
+
+        for i in range(1, len(self.gravity_data)):
+            (x1, y1), t1 = self.gravity_data[i-1]
+            (x2, y2), t2 = self.gravity_data[i]
+
+            delta_x = x2 - x1
+            delta_y = y2 - y1
+            delta_t = t2 - t1
+
+            vx = delta_x / delta_t
+            vy = delta_y / delta_t
+            self.gravity_speed.append((vx * 70, vy * 70))
+
+        for i in range(1, len(self.gravity_speed)):
+            (vx1, vy1) = self.gravity_speed[i-1]
+            (vx2, vy2) = self.gravity_speed[i]
+
+            t1 = self.gravity_data[i-1][1]
+            t2 = self.gravity_data[i][1]
+
+            delta_vx = vx2 - vx1
+            delta_vy = vy2 - vy1
+            delta_t = t2 - t1
+
+            ax = delta_vx / delta_t
+            ay = delta_vy / delta_t
+            self.gravity_acc.append((ax * 70, ay * 70))
+
+        for acceleration in self.gravity_acc:
+            ax, ay = acceleration
+            self.gravity_force.append(acceleration)
+
+        for i, force in enumerate(self.gravity_force):
+            elapsed_time_seconds = self.gravity_data[i][1] - self.gravity_data[0][1]
+
+            if elapsed_time_seconds >= 1:
+                last_observation_time = self.gravity_data[i - 1][1] if i > 0 else 0
+                last_observation_seconds = last_observation_time - self.gravity_data[0][1]
+
+                if int(elapsed_time_seconds) > int(last_observation_seconds):
+                    for second in range(int(last_observation_seconds) + 1, int(elapsed_time_seconds) + 1):
+                        self.gravity_result.append({
+                            "value": force,
+                            "label": f"{second}s"
+                        })
+
+        print(self.gravity_result)
 
     def start_proj(self, exercise_data: str):
         workout = exercise_data["id"]
@@ -180,4 +237,4 @@ if __name__ == "__main__":
     }
 
     # Exercice().start_proj(exercise_data)
-    Exercice().start_cam(exercise_data, 10)
+    Exercice().start_cam(exercise_data, 3)
