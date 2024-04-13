@@ -32,7 +32,7 @@ class Exercice:
             return
 
         print("Préparez-vous : L'exercice va bientôt démarrer")
-        for i in range(2, 0, -1):
+        for i in range(1, 0, -1):
             print(f"Plus que {i} secondes...")
             time.sleep(1)
 
@@ -41,9 +41,10 @@ class Exercice:
 
             if success:
                 video = detector.findPose(video, False)
-                # video = cv2.resize(video, (1024, 576))
+                video = cv2.resize(video, (1024, 576))
 
                 lmList = detector.findPosition(video, False)
+                center_gravite = detector.findGravityPoint(video, True)
 
                 if len(lmList) != 0:
                     joint_indices = {
@@ -87,12 +88,12 @@ class Exercice:
                         self.up_advice = False
                         self.down_advice = False
 
-                # cv2.imshow("bpump-cam", video)
-                # cv2.waitKey(1)
+                cv2.imshow("bpump-cam", video)
+                cv2.waitKey(1)
             else:
                 cap.release()
-                # cv2.destroyAllWindows()
-                # sys.exit(1)
+                cv2.destroyAllWindows()
+                sys.exit(1)
 
     def start_proj(self, exercise_data: str):
         workout = exercise_data["id"]
@@ -178,5 +179,5 @@ if __name__ == "__main__":
         ]
     }
 
-    Exercice().start_proj(exercise_data)
-    Exercice().start_cam(exercise_data, 4)
+    # Exercice().start_proj(exercise_data)
+    Exercice().start_cam(exercise_data, 10)

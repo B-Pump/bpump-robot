@@ -27,8 +27,9 @@ def message(sid, data):
 @sio.event
 def start_exo(sid, data):
     exercice_data = data["data"]
-    exercice.start_proj(exercice_data)
-    exercice.start_cam(exercice_data, 4)
+    # exercice.start_proj(exercice_data)
+    # exercice.start_cam(exercice_data, 4)
+    print(exercice_data["title"])
 
 def send_stats(data):
     sio.emit("result", data)
