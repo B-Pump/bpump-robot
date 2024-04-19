@@ -151,8 +151,68 @@ class Exercice:
                         })
 
         print(self.gravity_result)
-
+    # This function starts a project with exercise data
     def start_proj(self, exercise_data: str):
+        # Extract the workout ID from the exercise data
+        workout = exercise_data["id"]
+
+        # Extract the positions of the projector from the exercise data
+        positions = [(point["x"], point["y"]) for point in exercise_data["projector"]]
+
+        # Create a dictionary of markers where the keys are the workout IDs and the values are the positions
+        markers = {workout: positions}
+
+        # Adjust the markers by adding the center coordinates of the image
+        adjusted_markers = {
+            workout: [(self.center_x + x, self.center_y + y) for x, y in positions]
+            for workout, positions in markers.items()
+        }
+
+        # Create a new figure with a specific size based on the width and height of the image
+        plt.figure(figsize=(self.width / 77, self.height / 77))
+        # Display the image
+        plt.imshow(self.image)
+
+        # Plot a blue marker at the center of the image
+        plt.scatter(self.center_x, self.center_y, color="blue", marker="o", s=self.marker_size / 2)
+        # Plot red markers at the adjusted positions for the current workout
+        for point in adjusted_markers[workout]:
+            plt.scatter(point[0], point[1], color="red", marker="o", s=self.marker_size)
+
+        # Turn off the axis
+        plt.axis("off")
+
+        # Create a new in-memory file (buffer)
+        image_buffer = io.BytesIO()
+        # Save the figure to the buffer
+        plt.savefig(image_buffer, bbox_inches="tight", pad_inches=0)
+        # Move the buffer's file pointer to the beginning
+        image_buffer.seek(0)
+
+        # Open the image from the buffer
+        image = Image.open(image_buffer)
+        # Define a constant for adjusting the image
+        minus_plus = 300
+
+        # Get the size of the image
+        width, height = image.size
+        # Define the original points of the image
+        original_points = np.float32([[0, 0], [width, 0], [0, height], [width, height]])
+        # Define the new points of the image after adjustment
+        points_dest = np.float32([[0 + minus_plus, 0], [width - minus_plus, 0], [0, height], [width, height]])
+
+        # Calculate the transformation matrix for the image adjustment
+        transformation_matrix = cv2.getPerspectiveTransform(original_points, points_dest)
+        # Apply the transformation to the image
+        deformed_image = cv2.warpPerspective(np.array(image), transformation_matrix, (width, height))
+
+        # Convert the deformed image to ASCII art and print it to the terminal
+        AsciiArt.from_pillow_image(Image.fromarray(deformed_image)).to_terminal(columns=190, width_ratio=2)
+
+        # Close the buffer
+        image_buffer.close()
+
+'''    def start_proj(self, exercise_data: str):
         workout = exercise_data["id"]
 
         positions = [(point["x"], point["y"]) for point in exercise_data["projector"]]
@@ -189,6 +249,7 @@ class Exercice:
         AsciiArt.from_pillow_image(Image.fromarray(deformed_image)).to_terminal(columns=190, width_ratio=2)
 
         image_buffer.close()
+    '''
 
 if __name__ == "__main__":
     exercise_data = {
