@@ -86,8 +86,8 @@ class poseModule() :
             angle = 360 - angle
 
         if draw:
-            cv2.line(video, (x1, y1), (x2, y2), (255, 255, 255), 2)
-            cv2.line(video, (x3, y3), (x2, y2), (255, 255, 255), 2)  
+            cv2.line(video, (x1, y1), (x2, y2), (255, 255, 255), 1)
+            cv2.line(video, (x3, y3), (x2, y2), (255, 255, 255), 1)  
             cv2.circle(video, (x1, y1), 5, (0, 0, 255), cv2.FILLED)
             cv2.circle(video, (x2, y2), 5, (0, 0, 255), cv2.FILLED)
             cv2.circle(video, (x3, y3), 5, (0, 0, 255), cv2.FILLED)
@@ -125,3 +125,30 @@ class poseModule() :
             cv2.drawMarker(video, (int(center_x), int(center_y)), (255, 255, 255), cv2.MARKER_CROSS, markerSize=10, thickness=2)
 
         return center_x, center_y
+    
+    def getPixelSize(self, video, draw=False):
+        """
+        Calculates the pixel size between two specified landmarks and optionally draws the line on the video frame.
+
+        :param video: The video frame in which to calculate the pixel size.
+        :param draw: Boolean indicating whether to draw the distance line on the video frame (defaults to False).
+        :return: The pixel size between the specified landmarks.
+        """
+
+        self.findPosition(video, False)
+
+        if len(self.lmList) == 0:
+            return None
+
+        point1 = 31
+        point2 = 6
+
+        x1, y1 = self.lmList[point1][1:]
+        x2, y2 = self.lmList[point2][1:]
+        pixel_size = math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+
+        if draw:
+            cv2.line(video, (x2, y2), (x1, y1), (255, 0, 255), 1)
+            cv2.putText(video, str(int(pixel_size)), (x2, y2 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1)
+
+        return pixel_size

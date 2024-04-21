@@ -1,16 +1,22 @@
-import socket, threading
+import socket
 
 import eventlet, socketio
 from pyngrok import ngrok
 
-from lib.codeqr import QRCode
-from lib.exercice import Exercice 
+from codeqr import QRCode
+
+from exercice import Exercice
 
 qr = QRCode()
-exercice = Exercice()
+
 
 sio = socketio.Server(cors_allowed_origins="*")
 app = socketio.WSGIApp(sio)
+
+def start_exercice(sid, data, metabolism):
+    exercice = Exercice()
+    # exercice.start_proj(data)
+    exercice.start_cam(data, 5, metabolism)
 
 @sio.event
 def connect(sid, environ):
@@ -21,15 +27,15 @@ def disconnect(sid):
     print(f"[-] Disconnected : {sid}")
 
 @sio.event
-def message(sid, data):
-    print(f"[*] Received data : {data}")
+def start_exo(sid, data):
+    start_exercice(sid, data["data"], data["metabolism"])
 
 @sio.event
-def start_exo(sid, data):
-    exercice_data = data["data"]
-    # exercice.start_proj(exercice_data)
-    # exercice.start_cam(exercice_data, 4)
-    print(exercice_data["title"])
+def start_program(sid, program):
+    print(program["metabolism"])
+    metabolism = program["metabolism"]
+    for exo in program["data"]:
+        start_exercice(sid, exo, metabolism)
 
 def send_stats(data):
     sio.emit("result", data)
