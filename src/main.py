@@ -1,22 +1,21 @@
-import socket
+from socket import gethostbyname, gethostname
+from os import devnull
 
-import eventlet, socketio
+from eventlet import listen, wsgi
+from socketio import Server, WSGIApp
 from pyngrok import ngrok
 
 from codeqr import QRCode
-
 from exercice import Exercice
 
-qr = QRCode()
+sio = Server(cors_allowed_origins="*")
+app = WSGIApp(sio)
 
-
-sio = socketio.Server(cors_allowed_origins="*")
-app = socketio.WSGIApp(sio)
-
-def start_exercice(sid, data, metabolism):
+def start_exercice(data, metabolism):
     exercice = Exercice()
-    # exercice.start_proj(data)
-    exercice.start_cam(data, 5, metabolism)
+
+    exercice.start_proj(sio, data)
+    exercice.start_cam(sio, data, 5, metabolism, False)
 
 @sio.event
 def connect(sid, environ):
@@ -28,24 +27,19 @@ def disconnect(sid):
 
 @sio.event
 def start_exo(sid, data):
-    start_exercice(sid, data["data"], data["metabolism"])
+    start_exercice(data["data"], data["metabolism"])
 
 @sio.event
-def start_program(sid, program):
-    print(program["metabolism"])
-    metabolism = program["metabolism"]
-    for exo in program["data"]:
-        start_exercice(sid, exo, metabolism)
-
-def send_stats(data):
-    sio.emit("result", data)
+def start_program(sid, data):
+    for exo in data["data"]:
+        start_exercice(exo, data["metabolism"])
 
 if __name__ == "__main__":
-    SERVER_HOST = socket.gethostbyname(socket.gethostname())
+    SERVER_HOST = gethostbyname(gethostname())
     SERVER_PORT = 5001
 
     ngrok_tunnel = ngrok.connect(addr=f"{SERVER_HOST}:{SERVER_PORT}", bind_tls=True)
-    print(f"ngrok tunnel created : {ngrok_tunnel.public_url}")
+    # print(f"ngrok tunnel created : {ngrok_tunnel.public_url}")
 
-    qr.generate(ngrok_tunnel.public_url)
-    eventlet.wsgi.server(eventlet.listen((SERVER_HOST, SERVER_PORT)), app)
+    QRCode().generate(ngrok_tunnel.public_url)
+    wsgi.server(listen((SERVER_HOST, SERVER_PORT)), app, log=open(devnull, "w"))
