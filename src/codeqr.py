@@ -1,4 +1,5 @@
-import qrcode, cv2
+import qrcode
+from cv2 import QRCodeDetector, imread
 
 class QRCode:
     def __init__(self):
@@ -18,8 +19,8 @@ class QRCode:
         print("\n".join(["".join(["  " if cell else "██" for cell in row]) for row in qr_str]))
 
     def read(self, image_path: str):
-        img = cv2.imread(image_path)
-        detector = cv2.QRCodeDetector()
+        img = imread(image_path)
+        detector = QRCodeDetector()
         data, bbox, _ = detector.detectAndDecode(img)
 
         if bbox is not None:

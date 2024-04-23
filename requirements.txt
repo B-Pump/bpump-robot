@@ -5,6 +5,8 @@ mediapipe
 numpy
 pillow
 python-socketio
+flask
+flask_socketio
 eventlet
 pyngrok
 ascii_magic

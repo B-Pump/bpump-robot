@@ -1,8 +1,11 @@
 from time import time as timer, sleep
 from io import BytesIO
 from math import sqrt
+from os import makedirs, path
+from uuid import uuid4
 
-from cv2 import VideoCapture, resize, imshow as cv2_show, waitKey, destroyAllWindows, getPerspectiveTransform, warpPerspective
+from cv2 import VideoCapture, resize, imshow as cv2_show, waitKey, destroyAllWindows, getPerspectiveTransform, warpPerspective, VideoWriter, VideoWriter_fourcc
+from base64 import b64encode
 from matplotlib.pyplot import figure, imshow as plt_show, scatter, axis, savefig
 from numpy import float32, array
 from PIL import Image
@@ -13,7 +16,11 @@ from poseModule import poseModule
 detector = poseModule()
 
 class Exercice:
-    def __init__(self, reps = -1, drop = False, image = "./assets/bg-white.jpg"):
+    def __init__(self,video_dir = "src/videos", video_width = 640, video_height = 360, reps = -1, drop = False, image = "./assets/bg-white.jpg"):
+        self.video_dir = video_dir
+        self.video_width = video_width
+        self.video_height = video_height
+
         self.reps = reps
         self.drop = drop
 
@@ -26,18 +33,18 @@ class Exercice:
         self.center_y = self.height / 2
         self.marker_size = 3500
 
-    def start_cam(self, sio: Server, exercise_data, reps: int, metabolism, is_rpi):
+    def start_cam(self, sio: Server, exercise_data, metabolism, is_rpi: bool):
         if is_rpi:
             from picamera2 import Picamera2 # type: ignore
 
             piCam = Picamera2()
-            piCam.preview_configuration.main.size=(640, 360)
+            piCam.preview_configuration.main.size=(self.video_width, self.video_height)
             piCam.preview_configuration.main.format="RGB888"
             piCam.preview_configuration.align()
             piCam.configure("preview")
             piCam.start()
         else:
-            cap = VideoCapture("./assets/workout.mp4")
+            cap = VideoCapture("./assets/workout.mp4") # VideoCapture(0) for real camera
             if not cap.isOpened():
                 return
 
@@ -45,6 +52,10 @@ class Exercice:
         for i in range(1, 0, -1):
             print(f"Plus que {i} secondes...")
             sleep(1)
+
+        makedirs(self.video_dir, exist_ok=True)
+        fourcc = VideoWriter_fourcc(*"mp4v")
+        out = VideoWriter(path.join(self.video_dir, f"{uuid4()}.mp4"), fourcc, 20.0, (self.video_width, self.video_height))
 
         gCenterPosHistory = []
         totalEnergy = 0
@@ -58,6 +69,9 @@ class Exercice:
         user_height = metabolism["height"]
         user_weight = metabolism["weight"]
 
+        reps = exercise_data["reps"]
+        rest = exercise_data["rest"]
+
         while self.reps < reps:
             if is_rpi:
                 video = piCam.capture_array()
@@ -69,14 +83,14 @@ class Exercice:
 
             if success:
                 video = detector.findPose(video, False)
-                video = resize(video, (512, 288))
+                video = resize(video, (self.video_width, 360))
 
                 lmList = detector.findPosition(video, False)
 
                 if user_height != None and user_weight != None:
                     # Physics part
                     pS = detector.getPixelSize(video)
-                    center_gravite = detector.findGravityPoint(video, True)
+                    center_gravite = detector.findGravityPoint(video)
                     gCenterPosHistory.append((center_gravite[0], center_gravite[1], timer()))
 
                     if len(gCenterPosHistory) > 4:
@@ -167,11 +181,15 @@ class Exercice:
                         self.up_advice = False
                         self.down_advice = False
 
+                out.write(video)
                 cv2_show("bpump-cam", video)
                 waitKey(1)
+            else:
+                break
 
         destroyAllWindows()
         cap.release()
+        out.release()
 
         if user_height != None and user_weight != None:
             dataPacket = {
@@ -262,8 +280,10 @@ if __name__ == "__main__":
                 "x": -400,
                 "y": -75
             }
-        ]
+        ],
+        'reps': 12,
+        'rest': 0
     }
 
     # Exercice().start_proj(exercise_data)
-    Exercice().start_cam(None, exercise_data, 8, {"weight": 70, "height": 172, "age": 18, "sex": "m"}, False)
+    Exercice().start_cam(None, exercise_data, {"weight": 70, "height": 172, "age": 18, "sex": "m"}, False)

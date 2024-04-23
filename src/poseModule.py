@@ -95,7 +95,7 @@ class poseModule() :
 
         return angle
 
-    def findGravityPoint(self, video, draw=True):
+    def findGravityPoint(self, video, draw=False):
         """
         Calculates the estimated center of mass (gravity point) of the detected human pose.
 
