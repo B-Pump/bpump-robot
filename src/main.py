@@ -12,7 +12,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 def start_exercice(data, metabolism):
     exercice = Exercice()
 
-    exercice.start_proj(socketio, data)
+    exercice.start_proj(data)
     exercice.start_cam(socketio, data, metabolism, False)
 
 @socketio.event

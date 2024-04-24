@@ -4,16 +4,17 @@ from math import sqrt
 from os import makedirs, path
 from uuid import uuid4
 
-from cv2 import VideoCapture, resize, imshow as cv2_show, waitKey, destroyAllWindows, getPerspectiveTransform, warpPerspective, VideoWriter, VideoWriter_fourcc
-from base64 import b64encode
+from cv2 import VideoCapture, resize, imshow as cv2_show, waitKey, destroyAllWindows, VideoWriter, VideoWriter_fourcc
 from matplotlib.pyplot import figure, imshow as plt_show, scatter, axis, savefig
-from numpy import float32, array
 from PIL import Image
 from ascii_magic import AsciiArt
 from socketio import Server
 
-from poseModule import poseModule
+from module.poseModule import poseModule
+from module.imgModule import imgModule
+
 detector = poseModule()
+deformator = imgModule()
 
 class Exercice:
     def __init__(self,video_dir = "src/videos", video_width = 640, video_height = 360, reps = -1, drop = False, image = "./assets/bg-white.jpg"):
@@ -68,11 +69,9 @@ class Exercice:
 
         user_height = metabolism["height"]
         user_weight = metabolism["weight"]
-
-        reps = exercise_data["reps"]
         rest = exercise_data["rest"]
 
-        while self.reps < reps:
+        while self.reps < exercise_data["reps"]:
             if is_rpi:
                 video = piCam.capture_array()
                 if not video:
@@ -198,9 +197,16 @@ class Exercice:
                 "speed": speedData, # m.s-1
                 "force": forceData, # N
             }
-            sio.emit("result", dataPacket)
+            if sio:
+                sio.emit("result", dataPacket)
 
-    def start_proj(self, sio: Server, exercise_data: str):
+        sleep(2)
+
+        if rest != 0:
+            # TODO: rest timer
+            print("test")
+
+    def start_proj(self, exercise_data: str):
         workout = exercise_data["id"]
 
         positions = [(point["x"], point["y"]) for point in exercise_data["projector"]]
@@ -224,15 +230,7 @@ class Exercice:
         savefig(image_buffer, bbox_inches="tight", pad_inches=0)
         image_buffer.seek(0)
 
-        image = Image.open(image_buffer)
-        minus_plus = 300
-
-        width, height = image.size
-        original_points = float32([[0, 0], [width, 0], [0, height], [width, height]])
-        points_dest = float32([[0 + minus_plus, 0], [width - minus_plus, 0], [0, height], [width, height]])
-
-        transformation_matrix = getPerspectiveTransform(original_points, points_dest)
-        deformed_image = warpPerspective(array(image), transformation_matrix, (width, height))
+        deformed_image = deformator.deform(Image.open(image_buffer))
 
         AsciiArt.from_pillow_image(Image.fromarray(deformed_image)).to_terminal(columns=190, width_ratio=2)
 
@@ -281,9 +279,9 @@ if __name__ == "__main__":
                 "y": -75
             }
         ],
-        'reps': 12,
-        'rest': 0
+        'reps': 5,
+        'rest': 4
     }
 
-    # Exercice().start_proj(exercise_data)
+    Exercice().start_proj(exercise_data)
     Exercice().start_cam(None, exercise_data, {"weight": 70, "height": 172, "age": 18, "sex": "m"}, False)

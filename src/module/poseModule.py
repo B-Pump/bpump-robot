@@ -126,7 +126,7 @@ class poseModule() :
 
         return center_x, center_y
     
-    def getPixelSize(self, video, p1=31, p2=6, draw=False):
+    def getPixelSize(self, video, p1=31, p2=6, draw=False) -> float:
         """
         Calculates the pixel size between two specified landmarks and optionally draws the line on the video frame.
 

@@ -19,9 +19,7 @@ class QRCode:
         print("\n".join(["".join(["  " if cell else "██" for cell in row]) for row in qr_str]))
 
     def read(self, image_path: str):
-        img = imread(image_path)
-        detector = QRCodeDetector()
-        data, bbox, _ = detector.detectAndDecode(img)
+        data, bbox, _ = QRCodeDetector().detectAndDecode(imread(image_path))
 
         if bbox is not None:
             return data
