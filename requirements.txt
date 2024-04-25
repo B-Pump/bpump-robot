@@ -10,3 +10,4 @@ flask_socketio
 eventlet
 pyngrok
 ascii_magic
+art

@@ -14,7 +14,7 @@ from module.poseModule import poseModule
 from module.imgModule import imgModule
 
 detector = poseModule()
-deformator = imgModule()
+imager = imgModule()
 
 class Exercice:
     def __init__(self,video_dir = "src/videos", video_width = 640, video_height = 360, reps = -1, drop = False, image = "./assets/bg-white.jpg"):
@@ -200,11 +200,18 @@ class Exercice:
             if sio:
                 sio.emit("result", dataPacket)
 
-        sleep(2)
-
         if rest != 0:
-            # TODO: rest timer
-            print("test")
+            for i in range(rest, 0, -1):
+                imager.clear_console()
+
+                print(imager.asciier(str(i)))
+                sleep(1)
+
+            imager.clear_console()
+            print(imager.asciier("C'est reparti"))
+
+        sleep(2)
+        imager.clear_console()
 
     def start_proj(self, exercise_data: str):
         workout = exercise_data["id"]
@@ -230,7 +237,7 @@ class Exercice:
         savefig(image_buffer, bbox_inches="tight", pad_inches=0)
         image_buffer.seek(0)
 
-        deformed_image = deformator.deform(Image.open(image_buffer))
+        deformed_image = imager.deform(Image.open(image_buffer))
 
         AsciiArt.from_pillow_image(Image.fromarray(deformed_image)).to_terminal(columns=190, width_ratio=2)
 
@@ -279,8 +286,8 @@ if __name__ == "__main__":
                 "y": -75
             }
         ],
-        'reps': 5,
-        'rest': 4
+        'reps': 3,
+        'rest': 5
     }
 
     Exercice().start_proj(exercise_data)

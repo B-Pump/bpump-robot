@@ -1,6 +1,6 @@
 import RPi.GPIO as IO # type: ignore
-import time
-import subprocess
+from time import sleep
+from subprocess import run
 
 IO.setwarnings(False)
 IO.setmode (IO.BCM)
@@ -14,11 +14,11 @@ minSpeed = 0
 maxSpeed = 100
 
 def get_temp():
-    output = subprocess.run(["vcgencmd", "measure_temp"], capture_output=True)
+    output = run(["vcgencmd", "measure_temp"], capture_output=True)
     temp_str = output.stdout.decode()
 
     try:
-        result = float(temp_str.split('=')[1].split('\'')[0])
+        result = float(temp_str.split("=")[1].split("\'")[0])
         # print(result) # debug purposes
 
         return result
@@ -40,4 +40,5 @@ while 1:
         temp = maxTemp
 
     fan.ChangeDutyCycle(int(renormalize(temp, [minTemp, maxTemp], [minSpeed, maxSpeed])))
-    time.sleep(5)
+
+    sleep(5)

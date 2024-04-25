@@ -37,7 +37,7 @@ def start_program(data):
 
 if __name__ == "__main__":
     SERVER_HOST = "0.0.0.0"
-    SERVER_PORT = 5001
+    SERVER_PORT = 5001 
 
     ngrok_tunnel = ngrok.connect(addr=f"{SERVER_HOST}:{SERVER_PORT}", bind_tls=True)
     print(f"ngrok tunnel created : {ngrok_tunnel.public_url}") # debug purposes
