@@ -82,7 +82,7 @@ class Exercice:
 
             if success:
                 video = detector.findPose(video, False)
-                video = resize(video, (self.video_width, 360))
+                video = resize(video, (self.video_width, self.video_height))
 
                 lmList = detector.findPosition(video, False)
 
