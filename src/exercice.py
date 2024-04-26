@@ -25,9 +25,6 @@ class Exercice:
         self.reps = reps
         self.drop = drop
 
-        self.up_advice = False
-        self.down_advice = False
-
         self.image = Image.open(image)
         self.width, self.height = self.image.size
         self.center_x = self.width / 2
@@ -69,9 +66,11 @@ class Exercice:
 
         user_height = metabolism["height"]
         user_weight = metabolism["weight"]
+
+        reps = exercise_data["reps"]
         rest = exercise_data["rest"]
 
-        while self.reps < exercise_data["reps"]:
+        while self.reps < reps:
             if is_rpi:
                 video = piCam.capture_array()
                 if not video:
@@ -86,7 +85,7 @@ class Exercice:
 
                 lmList = detector.findPosition(video, False)
 
-                if user_height != None and user_weight != None:
+                if user_height and user_weight:
                     # Physics part
                     pS = detector.getPixelSize(video)
                     center_gravite = detector.findGravityPoint(video)
@@ -140,14 +139,23 @@ class Exercice:
 
                 if len(lmList) != 0:
                     joint_indices = {
-                        "leftArm": (12, 14, 16),
-                        "leftHip": (12, 24, 26),
-                        "leftLeg": (24, 26, 28),
-                        "leftFoot": (26, 28, 32),
-                        "rightArm": (11, 13, 15),
-                        "rightHip": (11, 23, 25),
-                        "rightLeg": (23, 25, 27),
-                        "rightFoot": (25, 27, 31)
+                        "leftArm": (11, 13, 15),
+                        "rightArm": (12, 14, 16),
+
+                        "leftForearm": (13, 15, 17),
+                        "rightForearm": (14, 16, 18),
+
+                        "leftHand": (15, 17, 19),
+                        "rightHand": (16, 18, 20),
+
+                        "leftLeg": (23, 25, 27),
+                        "rightLeg": (24, 26, 28),
+
+                        "leftFoot": (25, 27, 29),
+                        "rightFoot": (26, 28, 30),
+
+                        "leftBody": (11, 23, 25),
+                        "rightBody": (12, 24, 26),
                     }
 
                     for angle_data in exercise_data["camera"]:
@@ -161,14 +169,7 @@ class Exercice:
                             normalized_angle = (new_angles - min_angle) / (max_angle - min_angle)
                             movement_percentage = int(normalized_angle * 100)
 
-                            # if movement_percentage >= 110 and not self.up_advice:
-                            #     print("Tu es allé trop haut !")
-                            #     self.up_advice = True
-                            # elif movement_percentage <= -10 and not self.down_advice:
-                            #     print("Tu es allé trop bas !")
-                            #     self.down_advice = True
-
-                            # print(f"Rep % ({angle_name}) : {movement_percentage}%")
+                            print(f"Rep % ({angle_name}) : {movement_percentage}%")
 
                     if movement_percentage >= 95:
                         self.drop = False
@@ -177,8 +178,6 @@ class Exercice:
                         print("Reps :", self.reps)
 
                         self.drop = True
-                        self.up_advice = False
-                        self.down_advice = False
 
                 out.write(video)
                 cv2_show("bpump-cam", video)
@@ -190,7 +189,7 @@ class Exercice:
         cap.release()
         out.release()
 
-        if user_height != None and user_weight != None:
+        if user_height and user_weight:
             dataPacket = {
                 "total_energy": totalEnergy,
                 "energy": energyData, # J
@@ -208,7 +207,7 @@ class Exercice:
                 sleep(1)
 
             imager.clear_console()
-            print(imager.asciier("C'est reparti"))
+            print(imager.asciier("C'est  reparti  !"))
 
         sleep(2)
         imager.clear_console()
@@ -261,7 +260,47 @@ if __name__ == "__main__":
                 "angle": "rightArm",
                 "min": 160,
                 "max": 45
-            }
+            },
+            {
+                "angle": "leftHip",
+                "min": 160,
+                "max": 45
+            },
+            {
+                "angle": "leftLeg",
+                "min": 160,
+                "max": 45
+            },
+            {
+                "angle": "leftFoot",
+                "min": 160,
+                "max": 45
+            },
+            {
+                "angle": "rightHip",
+                "min": 160,
+                "max": 45
+            },
+            {
+                "angle": "rightLeg",
+                "min": 160,
+                "max": 45
+            },
+            {
+                "angle": "rightFoot",
+                "min": 160,
+                "max": 45
+            },
+            {
+                "angle": "rightHand",
+                "min": 160,
+                "max": 45
+            },
+            {
+                "angle": "leftHand",
+                "min": 160,
+                "max": 45
+            },
         ],
         'title': 'Tractions', 
         'exo_id': 4, 
@@ -286,9 +325,9 @@ if __name__ == "__main__":
                 "y": -75
             }
         ],
-        'reps': 3,
-        'rest': 5
+        'reps': 10,
+        'rest': 2
     }
 
-    Exercice().start_proj(exercise_data)
+    # Exercice().start_proj(exercise_data)
     Exercice().start_cam(None, exercise_data, {"weight": 70, "height": 172, "age": 18, "sex": "m"}, False)
