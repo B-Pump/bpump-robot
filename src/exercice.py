@@ -83,7 +83,7 @@ class Exercice:
 
                 lmList = detector.findPosition(video, False)
 
-                if user_height and user_weight:
+                if user_height != None and user_weight != None:
                     # Physics part
                     pS = detector.getPixelSize(video)
                     center_gravite = detector.findGravityPoint(video)
@@ -178,16 +178,16 @@ class Exercice:
                         self.drop = True
 
                 # out.write(video)
-                # cv2_show("bpump-cam", video)
-                # waitKey(1)
+                cv2_show("bpump-cam", video)
+                waitKey(1)
             else:
                 break
 
-        # destroyAllWindows()
-        # cap.release()
+        destroyAllWindows()
+        cap.release()
         # out.release()
 
-        if user_height and user_weight:
+        if user_height != None and user_weight != None:
             dataPacket = {
                 "total_energy": totalEnergy,
                 "energy": energyData, # J
