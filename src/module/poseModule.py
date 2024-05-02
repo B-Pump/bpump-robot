@@ -118,8 +118,9 @@ class poseModule() :
 
             total_weight += weight
 
-        center_x /= total_weight
-        center_y /= total_weight
+        if total_weight != 0:
+            center_x /= total_weight
+            center_y /= total_weight
 
         if draw:
             drawMarker(video, (int(center_x), int(center_y)), (255, 255, 255), MARKER_CROSS, markerSize=10, thickness=2)

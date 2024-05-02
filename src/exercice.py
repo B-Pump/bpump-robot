@@ -51,9 +51,9 @@ class Exercice:
             print(f"Plus que {i} secondes...")
             sleep(1)
 
-        makedirs(self.video_dir, exist_ok=True)
-        fourcc = VideoWriter_fourcc(*"mp4v")
-        out = VideoWriter(path.join(self.video_dir, f"{uuid4()}.mp4"), fourcc, 20.0, (self.video_width, self.video_height))
+        # makedirs(self.video_dir, exist_ok=True)
+        # fourcc = VideoWriter_fourcc(*"mp4v")
+        # out = VideoWriter(path.join(self.video_dir, f"{uuid4()}.mp4"), fourcc, 20.0, (self.video_width, self.video_height))
 
         gCenterPosHistory = []
         totalEnergy = 0
@@ -167,7 +167,7 @@ class Exercice:
                             normalized_angle = (new_angles - min_angle) / (max_angle - min_angle)
                             movement_percentage = int(normalized_angle * 100)
 
-                            print(f"Rep % ({angle_name}) : {movement_percentage}%")
+                            # print(f"Rep % ({angle_name}) : {movement_percentage}%")
 
                     if movement_percentage >= 95:
                         self.drop = False
@@ -177,15 +177,15 @@ class Exercice:
 
                         self.drop = True
 
-                out.write(video)
-                cv2_show("bpump-cam", video)
-                waitKey(1)
+                # out.write(video)
+                # cv2_show("bpump-cam", video)
+                # waitKey(1)
             else:
                 break
 
-        destroyAllWindows()
-        cap.release()
-        out.release()
+        # destroyAllWindows()
+        # cap.release()
+        # out.release()
 
         if user_height and user_weight:
             dataPacket = {
@@ -256,46 +256,6 @@ if __name__ == "__main__":
             },
             {
                 "angle": "rightArm",
-                "min": 160,
-                "max": 45
-            },
-            {
-                "angle": "leftHip",
-                "min": 160,
-                "max": 45
-            },
-            {
-                "angle": "leftLeg",
-                "min": 160,
-                "max": 45
-            },
-            {
-                "angle": "leftFoot",
-                "min": 160,
-                "max": 45
-            },
-            {
-                "angle": "rightHip",
-                "min": 160,
-                "max": 45
-            },
-            {
-                "angle": "rightLeg",
-                "min": 160,
-                "max": 45
-            },
-            {
-                "angle": "rightFoot",
-                "min": 160,
-                "max": 45
-            },
-            {
-                "angle": "rightHand",
-                "min": 160,
-                "max": 45
-            },
-            {
-                "angle": "leftHand",
                 "min": 160,
                 "max": 45
             },
