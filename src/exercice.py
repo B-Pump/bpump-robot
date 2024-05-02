@@ -64,8 +64,8 @@ class Exercice:
         referenceTime = timer()
         last_chrono_rounded = None
 
-        user_height = metabolism["height"]
-        user_weight = metabolism["weight"]
+        user_height = None
+        user_weight = None
 
         reps = exercise_data["reps"]
         rest = exercise_data["rest"]
@@ -83,7 +83,10 @@ class Exercice:
 
                 lmList = detector.findPosition(video, False)
 
-                if user_height != None and user_weight != None:
+                if metabolism != None:
+                    user_height = metabolism["height"]
+                    user_weight = metabolism["weight"]
+
                     # Physics part
                     pS = detector.getPixelSize(video)
                     center_gravite = detector.findGravityPoint(video)
@@ -187,7 +190,7 @@ class Exercice:
         cap.release()
         # out.release()
 
-        if user_height != None and user_weight != None:
+        if metabolism != None :
             dataPacket = {
                 "total_energy": totalEnergy,
                 "energy": energyData, # J
