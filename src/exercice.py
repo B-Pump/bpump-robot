@@ -73,8 +73,6 @@ class Exercice:
         while self.reps < reps:
             if is_rpi:
                 video = piCam.capture_array()
-                if not video:
-                    return
                 success = True
             else:
                 success, video = cap.read()
