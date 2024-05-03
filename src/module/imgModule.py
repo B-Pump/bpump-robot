@@ -30,7 +30,7 @@ class imgModule() :
 
         return deformed_image
     
-    def asciier(self, text):
+    def asciier(self, text) -> str:
         """
         Converts text into ASCII art
 

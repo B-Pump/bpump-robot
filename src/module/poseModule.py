@@ -42,7 +42,7 @@ class poseModule() :
 
         return video
     
-    def findPosition(self, video, draw=True):
+    def findPosition(self, video, draw=True) -> list:
         """
         Extracts and returns the list of positions of the detected landmarks.
 
@@ -63,7 +63,7 @@ class poseModule() :
 
         return self.lmList
 
-    def findAngle(self, video, p1, p2, p3, draw=True):
+    def findAngle(self, video, p1, p2, p3, draw=True) -> float:
         """
         Calculates the angle formed by three specified points.
 
