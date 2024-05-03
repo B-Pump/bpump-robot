@@ -122,8 +122,8 @@ class poseModule() :
             center_x /= total_weight
             center_y /= total_weight
 
-        if draw:
-            drawMarker(video, (int(center_x), int(center_y)), (255, 255, 255), MARKER_CROSS, markerSize=10, thickness=2)
+            if draw:
+                drawMarker(video, (int(center_x), int(center_y)), (255, 255, 255), MARKER_CROSS, markerSize=10, thickness=2)
 
         return center_x, center_y
     
@@ -138,15 +138,16 @@ class poseModule() :
 
         self.findPosition(video, False)
 
-        if len(self.lmList) == 0:
-            return None
+        if len(self.lmList) != 0:
 
-        x1, y1 = self.lmList[p1][1:]
-        x2, y2 = self.lmList[p2][1:]
-        pixel_size = sqrt((x1 - x2)**2 + (y1 - y2)**2)
+            x1, y1 = self.lmList[p1][1:]
+            x2, y2 = self.lmList[p2][1:]
+            pixel_size = sqrt((x1 - x2)**2 + (y1 - y2)**2)
 
-        if draw:
-            line(video, (x2, y2), (x1, y1), (255, 0, 255), 1)
-            putText(video, str(int(pixel_size)), (x2, y2 - 10), FONT_HERSHEY_PLAIN, 0.5, (255, 0, 255), 1)
+            if draw:
+                line(video, (x2, y2), (x1, y1), (255, 0, 255), 1)
+                putText(video, str(int(pixel_size)), (x2, y2 - 10), FONT_HERSHEY_PLAIN, 0.5, (255, 0, 255), 1)
 
-        return pixel_size
+            return pixel_size
+        else:
+            return 1

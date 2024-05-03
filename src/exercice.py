@@ -1,10 +1,8 @@
 from time import time as timer, sleep
 from io import BytesIO
 from math import sqrt
-from os import makedirs, path
-from uuid import uuid4
 
-from cv2 import VideoCapture, resize, imshow as cv2_show, waitKey, destroyAllWindows, VideoWriter, VideoWriter_fourcc
+from cv2 import VideoCapture, resize, imshow as cv2_show, waitKey, destroyAllWindows
 from matplotlib.pyplot import figure, imshow as plt_show, scatter, axis, savefig
 from PIL import Image
 from ascii_magic import AsciiArt
@@ -12,12 +10,14 @@ from socketio import Server
 
 from module.poseModule import poseModule
 from module.imgModule import imgModule
+from module.voiceModule import voiceModule
 
 detector = poseModule()
 imager = imgModule()
+tts = voiceModule()
 
 class Exercice:
-    def __init__(self,video_dir = "src/videos", video_width = 640, video_height = 360, reps = -1, drop = False, image = "./assets/bg-white.jpg"):
+    def __init__(self, video_dir = "./assets/workout", video_width = 640, video_height = 360, reps = -1, drop = False, image = "./assets/bg-white.jpg"):
         self.video_dir = video_dir
         self.video_width = video_width
         self.video_height = video_height
@@ -42,7 +42,7 @@ class Exercice:
             piCam.configure("preview")
             piCam.start()
         else:
-            cap = VideoCapture("./assets/workout.mp4") # VideoCapture(0) for real camera
+            cap = VideoCapture(f"{self.video_dir}/squats.mp4") # VideoCapture(0)
             if not cap.isOpened():
                 return
 
@@ -50,10 +50,6 @@ class Exercice:
         for i in range(1, 0, -1):
             print(f"Plus que {i} secondes...")
             sleep(1)
-
-        # makedirs(self.video_dir, exist_ok=True)
-        # fourcc = VideoWriter_fourcc(*"mp4v")
-        # out = VideoWriter(path.join(self.video_dir, f"{uuid4()}.mp4"), fourcc, 20.0, (self.video_width, self.video_height))
 
         gCenterPosHistory = []
         totalEnergy = 0
@@ -94,12 +90,12 @@ class Exercice:
 
                     if len(gCenterPosHistory) > 4:
                         # Acceleration
-                        scale = (user_height / (100*pS))
+                        scale = (user_height / (100 * pS))
                         dS1 = tuple(map(lambda i, j: i - j, gCenterPosHistory[-3], gCenterPosHistory[-2]))
                         dvS1 = sqrt(dS1[0]**2 + dS1[1]**2)/(dS1[2]) * scale
                         dS2 = tuple(map(lambda i, j: i - j, gCenterPosHistory[-2], gCenterPosHistory[-1]))
                         dvS2 = sqrt(dS2[0]**2 + dS2[1]**2)/(dS2[2]) * scale
-                        acc= (dvS2-dvS1) / (dS1[2])
+                        acc = (dvS2 - dvS1) / (dS1[2])
 
                         # Work
                         dgcenter = tuple(map(lambda i, j: i - j, gCenterPosHistory[-1], gCenterPosHistory[-2]))
@@ -187,8 +183,9 @@ class Exercice:
                 break
 
         destroyAllWindows()
-        cap.release()
-        # out.release()
+
+        if not is_rpi:
+            cap.release()
 
         if metabolism != None :
             dataPacket = {
@@ -214,21 +211,18 @@ class Exercice:
         imager.clear_console()
 
     def start_proj(self, exercise_data: str):
-        workout = exercise_data["id"]
-
-        positions = [(point["x"], point["y"]) for point in exercise_data["projector"]]
-        markers = {workout: positions}
+        points = exercise_data["projector"]
+        positions = [(point["x"], point["y"]) for point in points]
 
         adjusted_markers = {
-            workout: [(self.center_x + x, self.center_y + y) for x, y in positions]
-            for workout, positions in markers.items()
+            "workout": [(self.center_x + x, self.center_y + y) for x, y in positions]
         }
 
         figure(figsize=(self.width / 77, self.height / 77))
         plt_show(self.image)
 
         scatter(self.center_x, self.center_y, color="blue", marker="o", s=self.marker_size / 2)
-        for point in adjusted_markers[workout]:
+        for point in adjusted_markers["workout"]:
             scatter(point[0], point[1], color="red", marker="o", s=self.marker_size)
 
         axis("off")
@@ -245,50 +239,22 @@ class Exercice:
 
 if __name__ == "__main__":
     exercise_data = {
-        'id': 'pullups', 
-        'icon': 'https://i.imgur.com/3tcCNOo.jpeg', 
-        'description': 'Les tractions sont un exercice efficace pour renforcer les muscles du dos, des épaules et des bras. Accrochez-vous à une  barre fixe, tendez vos bras et tirez votre corps vers le haut en utilisant la force de vos muscles du dos et de vos bras.',
-        'difficulty': 4, 
-        'muscles': ['Dos', 'épaules', 'Bras'], 
-        'needed': ['Barre fixe'], 
         'camera': [
             {
-                "angle": "leftArm",
-                "min": 160,
-                "max": 45
-            },
-            {
-                "angle": "rightArm",
-                "min": 160,
-                "max": 45
-            },
-        ],
-        'title': 'Tractions', 
-        'exo_id': 4, 
-        'category': 'Haut du corps', 
-        'video': 'https://bpump-web.vercel.app/video/pullups.mp4', 
-        'security': ['Maintenez une bonne forme avec  les épaules en arrière.', 'Évitez de balancer votre corps pour faciliter le mouvement.'],
-        'projector': [
-            {
-                "x": 400,
-                "y": 150
-            },
-            {
-                "x": 400,
-                "y": -150
-            },
-            {
-                "x": -400,
-                "y": 75
-            },
-            {
-                "x": -400,
-                "y": -75
+                "angle": "rightLeg",
+                "min": 170,
+                "max": 90
             }
+        ],
+        'projector': [
+            {"x": 400, "y": 150},
+            {"x": 400, "y": -150},
+            {"x": -400, "y": 75},
+            {"x": -400, "y": -75}
         ],
         'reps': 10,
         'rest': 2
     }
 
-    # Exercice().start_proj(exercise_data)
+    Exercice().start_proj(exercise_data)
     Exercice().start_cam(None, exercise_data, {"weight": 70, "height": 172, "age": 18, "sex": "m"}, False)
