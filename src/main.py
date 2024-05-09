@@ -15,7 +15,7 @@ def start_exercice(data, metabolism):
     exercice = Exercice()
 
     exercice.start_proj(data)
-    exercice.start_cam(sio, data, metabolism, True)
+    exercice.start_cam(sio, data, metabolism, False)
 
 @sio.event
 def connect(sid, environ):
@@ -27,6 +27,8 @@ def disconnect(sid):
 
 @sio.event
 def start_exo(sid, data):
+    data["data"]["reps"] = 12
+    data["data"]["rest"] = 0
     start_exercice(data["data"], data["metabolism"])
 
 @sio.event
