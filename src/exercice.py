@@ -42,7 +42,7 @@ class Exercice:
             piCam.configure("preview")
             piCam.start()
         else:
-            cap = VideoCapture(f"{self.video_dir}/dips.mp4") # VideoCapture(0)
+            cap = VideoCapture(0) # VideoCapture(f"{self.video_dir}/pushups.mp4")
             if not cap.isOpened():
                 return
 
@@ -249,13 +249,13 @@ if __name__ == "__main__":
         'camera': [
             {
                 "angle": "leftArm",
-                "min": 160,
-                "max": 80
+                "min": 170,
+                "max": 75
             },
             {
                 "angle": "rightArm",
-                "min": 160,
-                "max": 80
+                "min": 170,
+                "max": 75
             }
         ],
         'projector': [

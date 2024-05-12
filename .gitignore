@@ -1,4 +1,4 @@
 __pycache__/
 .venv
 src/videos
-assets/workout
+/assets/workout/

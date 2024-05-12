@@ -6,7 +6,7 @@ class voiceModule() :
         self.voices = self.engine.getProperty("voices")
 
     def playText(self, text: str, is_rpi: bool):
-        # self.engine.setProperty("rate", 200)
+        self.engine.setProperty("rate", 180)
 
         if is_rpi:
             self.engine.setProperty("voice", self.voices[29].id)
