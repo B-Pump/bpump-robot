@@ -29,7 +29,7 @@ Distributed under the MIT License. See [`LICENSE`][license-url] for more informa
 
 ## Contact
 
-B-Pump - [b.pump.project@gmail.com](mailto:b.pump.project@gmail.com)
+B-Pump: [b.pump.project@gmail.com](mailto:b.pump.project@gmail.com)
 
 Org Link: [https://github.com/B-Pump](https://github.com/B-Pump)
 

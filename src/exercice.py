@@ -42,7 +42,7 @@ class Exercice:
             piCam.configure("preview")
             piCam.start()
         else:
-            cap = VideoCapture(f"{self.video_dir}/squats.mp4") # VideoCapture(0)
+            cap = VideoCapture(f"{self.video_dir}/dips.mp4") # VideoCapture(0)
             if not cap.isOpened():
                 return
 
@@ -166,13 +166,15 @@ class Exercice:
                             normalized_angle = (new_angles - min_angle) / (max_angle - min_angle)
                             movement_percentage = int(normalized_angle * 100)
 
-                            # print(f"Rep % ({angle_name}) : {movement_percentage}%")
+                            # print(f"Rep % ({angle_name}) : {movement_percentage}%") # debug purposes
 
                     if movement_percentage >= 95:
                         self.drop = False
                     elif movement_percentage <= 5 and not self.drop:
                         self.reps += 1
-                        print("Reps :", self.reps)
+                        # print("Reps :", self.reps) # debug purposes
+                        if self.reps > 0:
+                            tts.playText(str(self.reps), is_rpi)
 
                         self.drop = True
 
@@ -198,14 +200,19 @@ class Exercice:
                 sio.emit("result", dataPacket)
 
         if rest != 0:
+            tts.playText("Temps de repos", is_rpi)
+
             for i in range(rest, 0, -1):
                 imager.clear_console()
 
                 print(imager.asciier(str(i)))
+                tts.playText(str(i), is_rpi)
                 sleep(1)
 
             imager.clear_console()
+
             print(imager.asciier("C'est  reparti  !"))
+            tts.playText("C'est reparti !", is_rpi)
 
         sleep(2)
         imager.clear_console()
@@ -241,9 +248,14 @@ if __name__ == "__main__":
     exercise_data = {
         'camera': [
             {
-                "angle": "rightLeg",
-                "min": 170,
-                "max": 90
+                "angle": "leftArm",
+                "min": 160,
+                "max": 80
+            },
+            {
+                "angle": "rightArm",
+                "min": 160,
+                "max": 80
             }
         ],
         'projector': [

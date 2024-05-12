@@ -9,3 +9,4 @@ eventlet
 pyngrok
 ascii_magic
 art
+pyttsx3
