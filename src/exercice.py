@@ -42,7 +42,7 @@ class Exercice:
             piCam.configure("preview")
             piCam.start()
         else:
-            cap = VideoCapture(0) # VideoCapture(f"{self.video_dir}/pushups.mp4")
+            cap = VideoCapture(f"{self.video_dir}/pushups.mp4") # VideoCapture(0)
             if not cap.isOpened():
                 return
 
@@ -60,11 +60,11 @@ class Exercice:
         referenceTime = timer()
         last_chrono_rounded = None
 
-        user_height = None
-        user_weight = None
-
         reps = exercise_data["reps"]
         rest = exercise_data["rest"]
+
+        user_height = metabolism["height"]
+        user_weight = metabolism["weight"]
 
         while self.reps < reps:
             if is_rpi:
@@ -79,10 +79,7 @@ class Exercice:
 
                 lmList = detector.findPosition(video, False)
 
-                if metabolism != None:
-                    user_height = metabolism["height"]
-                    user_weight = metabolism["weight"]
-
+                if user_height and user_weight != None:
                     # Physics part
                     pS = detector.getPixelSize(video)
                     center_gravite = detector.findGravityPoint(video)
@@ -172,13 +169,18 @@ class Exercice:
                         self.drop = False
                     elif movement_percentage <= 5 and not self.drop:
                         self.reps += 1
-                        # print("Reps :", self.reps) # debug purposes
-                        if self.reps > 0:
+
+                        print("Reps :", self.reps)
+
+                        if self.reps == reps - 1:
+                            tts.playText("Encore une !", is_rpi)
+                        elif self.reps > 0 and self.reps != reps:
                             tts.playText(str(self.reps), is_rpi)
+                        elif self.reps == reps:
+                            tts.playText("Fini !", is_rpi)
 
                         self.drop = True
 
-                # out.write(video)
                 cv2_show("bpump-cam", video)
                 waitKey(1)
             else:
@@ -186,10 +188,12 @@ class Exercice:
 
         destroyAllWindows()
 
-        if not is_rpi:
+        if is_rpi:
+            piCam.stop()
+        else:
             cap.release()
 
-        if metabolism != None :
+        if user_height and user_weight != None:
             dataPacket = {
                 "total_energy": totalEnergy,
                 "energy": energyData, # J
@@ -200,13 +204,13 @@ class Exercice:
                 sio.emit("result", dataPacket)
 
         if rest != 0:
-            tts.playText("Temps de repos", is_rpi)
+            # tts.playText("Temps de repos", is_rpi)
 
             for i in range(rest, 0, -1):
                 imager.clear_console()
 
                 print(imager.asciier(str(i)))
-                tts.playText(str(i), is_rpi)
+                # tts.playText(str(i), is_rpi)
                 sleep(1)
 
             imager.clear_console()
@@ -249,12 +253,12 @@ if __name__ == "__main__":
         'camera': [
             {
                 "angle": "leftArm",
-                "min": 170,
+                "min": 150,
                 "max": 75
             },
             {
                 "angle": "rightArm",
-                "min": 170,
+                "min": 150,
                 "max": 75
             }
         ],
@@ -264,9 +268,9 @@ if __name__ == "__main__":
             {"x": -400, "y": 75},
             {"x": -400, "y": -75}
         ],
-        'reps': 10,
-        'rest': 2
+        'reps': 8,
+        'rest': 3
     }
 
-    Exercice().start_proj(exercise_data)
+    # Exercice().start_proj(exercise_data)
     Exercice().start_cam(None, exercise_data, {"weight": 70, "height": 172, "age": 18, "sex": "m"}, False)
