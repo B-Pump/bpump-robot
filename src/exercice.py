@@ -204,13 +204,13 @@ class Exercice:
                 sio.emit("result", dataPacket)
 
         if rest != 0:
-            # tts.playText("Temps de repos", is_rpi)
+            tts.playText("Temps de repos", is_rpi)
 
             for i in range(rest, 0, -1):
                 imager.clear_console()
 
                 print(imager.asciier(str(i)))
-                # tts.playText(str(i), is_rpi)
+                tts.playText(str(i), is_rpi)
                 sleep(1)
 
             imager.clear_console()
