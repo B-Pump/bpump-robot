@@ -1,18 +1,16 @@
-from pyttsx3 import init as ttsInit
+from threading import Thread
+
+from simpleaudio import WaveObject
 
 class voiceModule():
     def __init__(self):
-        self.engine = ttsInit()
-        self.voices = self.engine.getProperty("voices")
+        pass
 
-    def playText(self, text: str, is_rpi: bool):
-        self.engine.setProperty("rate", 250)
-
-        if is_rpi:
-            self.engine.setProperty("voice", self.voices[29].id)
-        else:
-            self.engine.setProperty("voice", self.voices[0].id)
-
-        self.engine.say(str(text))
-        self.engine.runAndWait()
-        self.engine.stop()
+    def playAudio(self, file: str):
+        def play():
+            wave_obj = WaveObject.from_wave_file(f"./assets/voices/{file}.wav")
+            play_obj = wave_obj.play()
+            play_obj.wait_done()
+        
+        audio_thread = Thread(target=play)
+        audio_thread.start()

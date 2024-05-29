@@ -14,7 +14,7 @@ from module.voiceModule import voiceModule
 
 detector = poseModule()
 imager = imgModule()
-tts = voiceModule()
+voice = voiceModule()
 
 class Exercice:
     def __init__(self, video_dir = "./assets/workout", video_width = 640, video_height = 360, reps = -1, drop = False, image = "./assets/bg-white.jpg"):
@@ -45,11 +45,6 @@ class Exercice:
             cap = VideoCapture(f"{self.video_dir}/pushups.mp4") # VideoCapture(0)
             if not cap.isOpened():
                 return
-
-        print("Préparez-vous : L'exercice va bientôt démarrer")
-        for i in range(1, 0, -1):
-            print(f"Plus que {i} secondes...")
-            sleep(1)
 
         gCenterPosHistory = []
         totalEnergy = 0
@@ -173,11 +168,12 @@ class Exercice:
                         print("Reps :", self.reps)
 
                         if self.reps == reps - 1:
-                            tts.playText("Encore une !", is_rpi)
+                            voice.playAudio("encore_une")
                         elif self.reps > 0 and self.reps != reps:
-                            tts.playText(str(self.reps), is_rpi)
+                            if self.reps <= 30:
+                                voice.playAudio(str(self.reps))
                         elif self.reps == reps:
-                            tts.playText("Fini !", is_rpi)
+                            voice.playAudio("fini")
 
                         self.drop = True
 
@@ -204,19 +200,26 @@ class Exercice:
                 sio.emit("result", dataPacket)
 
         if rest != 0:
-            tts.playText("Temps de repos", is_rpi)
+            sleep(1)
+            voice.playAudio("temps_de_repos")
+            sleep(1)
 
             for i in range(rest, 0, -1):
                 imager.clear_console()
 
                 print(imager.asciier(str(i)))
-                tts.playText(str(i), is_rpi)
+
+                if i <= 30:
+                    voice.playAudio(str(i))
+                elif i == 60 or i == 120:
+                    voice.playAudio(f"{str(i)}min")
+
                 sleep(1)
 
             imager.clear_console()
 
             print(imager.asciier("C'est  reparti  !"))
-            tts.playText("C'est reparti !", is_rpi)
+            voice.playAudio("c_est_repartis")
 
         sleep(2)
         imager.clear_console()
