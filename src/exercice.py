@@ -209,10 +209,8 @@ class Exercice:
 
                 print(imager.asciier(str(i)))
 
-                if i <= 30:
+                if i <= 30 or i == 60 or i == 120:
                     voice.playAudio(str(i))
-                elif i == 60 or i == 120:
-                    voice.playAudio(f"{str(i)}min")
 
                 sleep(1)
 
@@ -272,7 +270,7 @@ if __name__ == "__main__":
             {"x": -400, "y": -75}
         ],
         'reps': 8,
-        'rest': 3
+        'rest': 62
     }
 
     # Exercice().start_proj(exercise_data)
